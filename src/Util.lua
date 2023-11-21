@@ -1,16 +1,4 @@
 --[[
-    GD50
-    Super Mario Bros. Remake
-
-    -- StartState Class --
-
-    Author: Colton Ogden
-    cogden@cs50.harvard.edu
-
-    Helper functions for writing Match-3.
-]]
-
---[[
     Given an "atlas" (a texture with multiple sprites), as well as a
     width and a height for the tiles therein, split the texture into
     all of the quads by simply dividing it evenly.
@@ -33,35 +21,6 @@ function GenerateQuads(atlas, tilewidth, tileheight)
 
     return spritesheet
 end
-
---[[
-    Divides quads we've generated via slicing our tile sheet into separate tile sets.
-]]
-function GenerateTileSets(quads, setsX, setsY, sizeX, sizeY)
-    local tilesets = {}
-    local tableCounter = 0
-    local sheetWidth = setsX * sizeX
-    local sheetHeight = setsY * sizeY
-
-    -- for each tile set on the X and Y
-    for tilesetY = 1, setsY do
-        for tilesetX = 1, setsX do
-            
-            -- tileset table
-            table.insert(tilesets, {})
-            tableCounter = tableCounter + 1
-
-            for y = sizeY * (tilesetY - 1) + 1, sizeY * (tilesetY - 1) + 1 + sizeY do
-                for x = sizeX * (tilesetX - 1) + 1, sizeX * (tilesetX - 1) + 1 + sizeX do
-                    table.insert(tilesets[tableCounter], quads[sheetWidth * (y - 1) + x])
-                end
-            end
-        end
-    end
-
-    return tilesets
-end
-
 --[[
     Recursive table printing function.
     https://coronalabs.com/blog/2014/09/02/tutorial-printing-table-contents/

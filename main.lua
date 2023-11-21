@@ -1,6 +1,6 @@
 --[[
     CS50x Final Project
-    Space shooter Remake
+    Space Impact Remake
 
     Author: Adarsh Maurya
     adarshmaurya500@gmail.com
@@ -13,12 +13,12 @@
     Music:
     https://freesound.org/people/Sirkoto51/sounds/393818/
 ]]
-love.graphics.setDefaultFilter('nearest', 'nearest')
 require 'src/Dependencies'
 
 function love.load()
+    love.graphics.setDefaultFilter('nearest', 'nearest')
     love.graphics.setFont(gFonts['medium'])
-    love.window.setTitle('Space Shooter')
+    love.window.setTitle('Space Impact')
 
     math.randomseed(os.time())
     
@@ -35,10 +35,6 @@ function love.load()
     }
     gStateMachine:change('start')
 
-    gSounds['music']:setLooping(true)
-    -- gSounds['music']:setVolume(0.5)
-    gSounds['music']:play()
-
     love.keyboard.keysPressed = {}
 end
 
@@ -47,10 +43,6 @@ function love.resize(w, h)
 end
 
 function love.keypressed(key)
-    if key == 'escape' then
-        love.event.quit()
-    end
-
     love.keyboard.keysPressed[key] = true
 end
 
