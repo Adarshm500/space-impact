@@ -30,8 +30,9 @@ ENTITY_DEFS = {
                 texture = 'spaceship-turn-up'
             },
             ['idle'] = {
-                frames = {1},
-                texture = 'spaceship-move-left'
+                frames = {1, 2, 3, 4},
+                interval = 0.1,
+                texture = 'spaceship-idle'
             },
         --     ['sword-left'] = {
         --         frames = {13, 14, 15, 16},

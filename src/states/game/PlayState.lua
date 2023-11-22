@@ -1,8 +1,6 @@
 PlayState = Class{__includes = BaseState}
 
-local backgroundScroll = 0
 function PlayState:init()
-    print('PlayState-init')
     self.player = Player {
         animations = ENTITY_DEFS['player'].animations,
         moveSpeed = ENTITY_DEFS['player'].moveSpeed,
@@ -18,6 +16,16 @@ function PlayState:init()
         -- rendering and collision offset for spaced sprites
         offsetY = -48
     }
+    self.fires = {}
+    
+    self.background = Background()
+
+    for i = 1, 2 do
+        self.fire = Fire(self.player.x , self.player.y + (i - 1) * 4)
+        self.timer = 0
+        -- inititate the lasers
+        table.insert(self.fires, self.fire)
+    end
     
     self.player.stateMachine = StateMachine {
         ['move'] = function() return PlayerMoveState(self.player) end,
@@ -32,34 +40,41 @@ function PlayState:init()
 end
 
 function PlayState:update(dt)
+    self.timer = self.timer + dt
     if love.keyboard.wasPressed('escape') then
         gSounds['music']:stop()
         gStateMachine:change('start')
     end
 
-    -- scroll our background and ground, looping back to 0 after a certain amount
-    backgroundScroll = (backgroundScroll + BACKGROUND_SCROLL_SPEED * dt) % BACKGROUND_LOOPING_POINT
+    -- after every half seconds init a fire
+    if self.timer > 0.2 then
+        for i = 1,2 do
+            self.fire = Fire(self.player.x, self.player.y + (i - 1) * 4)
+            table.insert(self.fires, self.fire)
+            self.timer = 0
+        end
+    end
 
     -- spaceship:update(dt)
     self.player:update(dt)
+    
+    for k, fire in pairs(self.fires) do
+        if not fire.removed then fire:update(dt) end
+    end
 
+    self.background:update(dt)
 end
 
 function PlayState:render()
-    local backgroundWidth = gTextures['background']:getWidth()
-    local backgroundHeight = gTextures['background']:getHeight()
-    
-    love.graphics.draw(gTextures['background'], 
-        -- draw at coordinates 0, 0
-        -backgroundScroll, 0, 
-        -- no rotation
-        0)
-
+    self.background:render()
     -- for k, entity in pairs(self.entities) do
     --     if not entity.dead then entity:render(self.adjacentOffsetX, self.adjacentOffsetY) end
     -- end
 
     self.player:render()
+    for k, fire in pairs(self.fires) do
+        if not fire.removed then fire:render() end
+    end
         
     -- spaceship:render()
 end

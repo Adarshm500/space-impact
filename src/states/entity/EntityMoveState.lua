@@ -74,17 +74,17 @@ function EntityMoveState:update(dt)
     end
 
     if self.entity.dy < 0 then
-        self.entity.y = math.max(0, self.entity.y + self.entity.dy * dt)
+        self.entity.y = math.max(-self.entity.offsetY, self.entity.y + self.entity.dy * dt)
     
     else
-        self.entity.y = math.min(VIRTUAL_HEIGHT - self.entity.height, self.entity.y + self.entity.dy * dt)
+        self.entity.y = math.min(VIRTUAL_HEIGHT - self.entity.height + self.entity.offsetY, self.entity.y + self.entity.dy * dt)
     end
 
     if self.entity.dx < 0 then
-        self.entity.x = math.max(0, self.entity.x + self.entity.dx * dt)
+        self.entity.x = math.max(-self.entity.offsetX, self.entity.x + self.entity.dx * dt)
     
     else
-        self.entity.x = math.min(VIRTUAL_WIDTH - self.entity.width, self.entity.x + self.entity.dx * dt)
+        self.entity.x = math.min(VIRTUAL_WIDTH - self.entity.width + self.entity.offsetX, self.entity.x + self.entity.dx * dt)
     end
 end
 
