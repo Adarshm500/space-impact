@@ -20,18 +20,39 @@ end
 function PlayerMoveState:update(dt)
     if love.keyboard.isDown('a') then
         self.entity:changeAnimation('move-left')
+        self.entity.dx = -self.entity.moveSpeed
     elseif love.keyboard.isDown('d') then
         self.entity:changeAnimation('move-right')
+        self.entity.dx = self.entity.moveSpeed
     elseif love.keyboard.isDown('w') then
         self.entity:changeAnimation('turn-up')
+        self.entity.dy = -self.entity.moveSpeed
     elseif love.keyboard.isDown('s') then
         self.entity:changeAnimation('turn-down')
+        self.entity.dy = self.entity.moveSpeed
     else
         self.entity:changeState('idle')
+        self.entity.dy = 0
+        self.entity.dx = 0
     end
-
+    
     -- perform base collision detection against walls
     EntityMoveState.update(self, dt)
+    
+    if self.entity.dy < 0 then
+        self.entity.y = math.max(-self.entity.offsetY, self.entity.y + self.entity.dy * dt)
+    
+    else
+        self.entity.y = math.min(VIRTUAL_HEIGHT - self.entity.height + self.entity.offsetY, self.entity.y + self.entity.dy * dt)
+    end
+
+    if self.entity.dx < 0 then
+        self.entity.x = math.max(-self.entity.offsetX, self.entity.x + self.entity.dx * dt)
+    
+    else
+        self.entity.x = math.min(VIRTUAL_WIDTH - self.entity.width + self.entity.offsetX, self.entity.x + self.entity.dx * dt)
+    end
+
 
     -- for k, object in pairs(self.dungeon.currentRoom.objects) do
     --     -- if we collide with a solid object then stop
@@ -126,4 +147,12 @@ function PlayerMoveState:update(dt)
     --         self.entity.y = self.entity.y - PLAYER_WALK_SPEED * dt
     --     end
     -- end
+end
+
+function PlayerMoveState:render()
+    local anim = self.entity.currentAnimation
+    love.graphics.draw(gTextures[anim.texture], gFrames[anim.texture][anim:getCurrentFrame()],
+        math.floor(self.entity.x - self.entity.offsetX), math.floor(self.entity.y - self.entity.offsetY),
+    0,
+    96 / 192, 96 / 192)
 end

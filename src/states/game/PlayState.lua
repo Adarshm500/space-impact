@@ -11,12 +11,26 @@ function PlayState:init()
         width = 96,
         height = 96,
 
-        -- health = 6,
+        health = 6,
 
         -- rendering and collision offset for spaced sprites
         offsetY = -48
     }
     self.fires = {}
+
+    self.asteroid = GameObject {
+        animations = GAME_OBJECT_DEFS['asteroid'].states,
+        moveSpeed = GAME_OBJECT_DEFS['asteroid'].moveSpeed,
+
+        type = GAME_OBJECT_DEFS['asteroid'].type,
+        x = VIRTUAL_WIDTH - 96 ,
+        y = VIRTUAL_HEIGHT / 2 - 96,
+
+        width = 96,
+        height = 96,
+
+        health = 8,
+    }
     
     self.background = Background()
 
@@ -33,7 +47,10 @@ function PlayState:init()
     }
     self.player:changeState('idle')
 
-    -- spaceship = Spaceship()
+    if self.asteroid then
+        self.asteroid:changeState('move')
+    end
+
     gSounds['music']:setLooping(true)
     -- gSounds['music']:setVolume(0.5)
     gSounds['music']:play()
@@ -55,11 +72,14 @@ function PlayState:update(dt)
         end
     end
 
-    -- spaceship:update(dt)
     self.player:update(dt)
     
     for k, fire in pairs(self.fires) do
         if not fire.removed then fire:update(dt) end
+    end
+
+    if self.asteroid then
+        self.asteroid:update(dt)
     end
 
     self.background:update(dt)
@@ -70,11 +90,32 @@ function PlayState:render()
     -- for k, entity in pairs(self.entities) do
     --     if not entity.dead then entity:render(self.adjacentOffsetX, self.adjacentOffsetY) end
     -- end
-
+    
     self.player:render()
     for k, fire in pairs(self.fires) do
         if not fire.removed then fire:render() end
     end
+    
+    if self.asteroid then
+        self.asteroid:render()
+    end
+
+    -- draw player hearts, top of screen
+    local healthLeft = self.player.health
+    local heartFrame = 1
+
+    for i = 1, 3 do
+        if healthLeft > 1 then
+            heartFrame = 5
+        elseif healthLeft == 1 then
+            heartFrame = 3
+        else
+            heartFrame = 1
+        end
+
+        love.graphics.draw(gTextures['hearts'], gFrames['hearts'][heartFrame],
+            (i) * 20, 2)
         
-    -- spaceship:render()
+        healthLeft = healthLeft - 2
+    end
 end

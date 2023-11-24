@@ -11,8 +11,9 @@ ENTITY_DEFS = {
         moveSpeed = SPACESHIP_SPEED,
         animations = {
             ['move-left'] = {
-                frames = {1},
-                texture = 'spaceship-move-left'
+                frames = {1, 2, 3, 4},
+                interval = 0.1,
+                texture = 'spaceship-idle'
             },
             ['move-right'] = {
                 frames = {1, 2, 3, 4, 5},
@@ -31,7 +32,7 @@ ENTITY_DEFS = {
             },
             ['idle'] = {
                 frames = {1, 2, 3, 4},
-                interval = 0.1,
+                interval = 0.05,
                 texture = 'spaceship-idle'
             },
         --     ['sword-left'] = {
@@ -42,6 +43,15 @@ ENTITY_DEFS = {
         --     },
         }
     },
+    ['asteroid'] = {
+        moveSpeed = ENTITY_MOVE_SPEED,
+        animations = {
+            ['move-left'] = {
+                frames = {1},
+                texture = 'asteroid'
+            }
+        }
+    }
     -- ['skeleton'] = {
     --     texture = 'entities',
     --     animations = {

@@ -29,3 +29,6 @@ BACKGROUND_LOOPING_POINT = 512
 
 -- enemy movement speed
 ENTITY_MOVE_SPEED = 100
+
+-- object movement speed
+OBJECT_MOVE_SPEED = 100

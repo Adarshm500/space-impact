@@ -5,6 +5,9 @@ function Fire:init(playerX, playerY)
     self.y = playerY + 36
     self.dx = 200
     self.removed = false
+    gSounds['shoot']:stop()
+    gSounds['shoot']:setVolume(0.2)
+    gSounds['shoot']:play()
 end
 
 function Fire:update(dt)
