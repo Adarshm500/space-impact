@@ -27,6 +27,10 @@ require 'src/StateMachine'
 require 'src/Util'
 require 'src/GameObject'
 require 'src/game_objects'
+require 'src/Hitbox'
+
+-- world
+require 'src/world/Level'
 
 require 'src/states/BaseState'
 
@@ -42,8 +46,9 @@ require 'src/states/game/PlayState'
 require 'src/states/game/StartState'
 gSounds = {
     ['shoot'] = love.audio.newSource('sounds/shoot4.wav', 'static'),
+    ['explosion'] = love.audio.newSource('sounds/explosion.wav', 'static'),
     ['music'] = love.audio.newSource('sounds/music.mp3', 'static'),
-    ['intro-music'] = love.audio.newSource('sounds/menu.wav', 'static')
+    ['intro-music'] = love.audio.newSource('sounds/menu.wav', 'static'),
 }
 
 gTextures = {

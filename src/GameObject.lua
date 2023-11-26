@@ -33,7 +33,9 @@ function GameObject:init(def)
     -- default empty collision callback
     self.onCollide = function() end
 
-    self.destroyed = false
+    self.remove = false
+    self.removing = false -- flag to check if the process of object removal going on (to add some functionality like shatter effect)
+    self.timer = 0
 end
 
 function GameObject:createAnimations(animations)
@@ -50,6 +52,11 @@ function GameObject:createAnimations(animations)
     return animationsReturned
 end
 
+function GameObject:changeState(name)
+    self.state = name
+    self.currentAnimation = self.animations[name]
+end
+
 function GameObject:update(dt)
     if self.currentAnimation then
         self.currentAnimation:update(dt)
@@ -61,10 +68,6 @@ function GameObject:damage(dmg)
     self.health = self.health - dmg
 end
 
-function GameObject:changeState(name)
-    self.state = name
-    self.currentAnimation = self.animations[name]
-end
 
 function GameObject:render(adjacentOffsetX, adjacentOffsetY)
     local anim = self.currentAnimation

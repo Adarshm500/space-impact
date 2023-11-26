@@ -3,10 +3,12 @@ Fire = Class{}
 function Fire:init(playerX, playerY)
     self.x = playerX + 72
     self.y = playerY + 36
+    self.width = 28
+    self.height = 2
     self.dx = 200
     self.removed = false
     gSounds['shoot']:stop()
-    gSounds['shoot']:setVolume(0.2)
+    gSounds['shoot']:setVolume(0.25)
     gSounds['shoot']:play()
 end
 
@@ -15,6 +17,17 @@ function Fire:update(dt)
         self.removed = true
     end
     self.x = self.x + self.dx * dt
+end
+
+function Fire:collides(target)
+    local yOffset = 27
+    
+    local selfY, selfHeight = self.y + yOffset, self.height - 2 * yOffset
+    
+    return not (self.x + self.width < target.x or
+                self.x > target.x + target.width or
+                selfY + selfHeight < target.y or
+                selfY > target.y + target.height)     
 end
 
 function Fire:render()

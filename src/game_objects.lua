@@ -16,9 +16,10 @@ GAME_OBJECT_DEFS = {
                 frames = {1},
                 texture = 'asteroid'
             },
-            ['destory'] = {
+            ['destroy'] = {
                 frames = {3, 4, 5, 6, 7, 8},
-                texture = 'Explosion'
+                interval = 0.155,
+                texture = 'explosion'
             }
         },
 

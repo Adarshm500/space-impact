@@ -16,30 +16,18 @@ function PlayState:init()
         -- rendering and collision offset for spaced sprites
         offsetY = -48
     }
-    self.fires = {}
 
-    self.asteroid = GameObject {
-        animations = GAME_OBJECT_DEFS['asteroid'].states,
-        moveSpeed = GAME_OBJECT_DEFS['asteroid'].moveSpeed,
-
-        type = GAME_OBJECT_DEFS['asteroid'].type,
-        x = VIRTUAL_WIDTH - 96 ,
-        y = VIRTUAL_HEIGHT / 2 - 96,
-
-        width = 96,
-        height = 96,
-
-        health = 8,
-    }
+    self.level = Level(self.player)
+    -- self.fires = {}
     
-    self.background = Background()
+    -- self.background = Background()
 
-    for i = 1, 2 do
-        self.fire = Fire(self.player.x , self.player.y + (i - 1) * 4)
-        self.timer = 0
-        -- inititate the lasers
-        table.insert(self.fires, self.fire)
-    end
+    -- for i = 1, 2 do
+    --     self.fire = Fire(self.player.x , self.player.y + (i - 1) * 4)
+    --     self.timer = 0
+    --     -- inititate the lasers
+    --     table.insert(self.fires, self.fire)
+    -- end
     
     self.player.stateMachine = StateMachine {
         ['move'] = function() return PlayerMoveState(self.player) end,
@@ -47,9 +35,9 @@ function PlayState:init()
     }
     self.player:changeState('idle')
 
-    if self.asteroid then
-        self.asteroid:changeState('move')
-    end
+    -- if self.asteroid then
+    --     self.asteroid:changeState('move')
+    -- end
 
     gSounds['music']:setLooping(true)
     -- gSounds['music']:setVolume(0.5)
@@ -57,48 +45,52 @@ function PlayState:init()
 end
 
 function PlayState:update(dt)
-    self.timer = self.timer + dt
+    -- self.timer = self.timer + dt
     if love.keyboard.wasPressed('escape') then
         gSounds['music']:stop()
         gStateMachine:change('start')
     end
 
     -- after every half seconds init a fire
-    if self.timer > 0.2 then
-        for i = 1,2 do
-            self.fire = Fire(self.player.x, self.player.y + (i - 1) * 4)
-            table.insert(self.fires, self.fire)
-            self.timer = 0
-        end
-    end
+    -- if self.timer > 0.2 then
+    --     for i = 1,2 do
+    --         self.fire = Fire(self.player.x, self.player.y + (i - 1) * 4)
+    --         table.insert(self.fires, self.fire)
+    --         self.timer = 0
+    --     end
+    -- end
 
-    self.player:update(dt)
+    -- self.player:update(dt)
+    self.level:update(dt)
     
-    for k, fire in pairs(self.fires) do
-        if not fire.removed then fire:update(dt) end
-    end
+    -- for k, fire in pairs(self.fires) do
+    --     if not fire.removed then fire:update(dt) end
+    -- end
 
-    if self.asteroid then
-        self.asteroid:update(dt)
-    end
+    -- if self.asteroid then
+    --     self.asteroid:update(dt)
+    -- end
 
-    self.background:update(dt)
+    -- self.background:update(dt)
 end
 
 function PlayState:render()
-    self.background:render()
+    -- self.background:render()
     -- for k, entity in pairs(self.entities) do
     --     if not entity.dead then entity:render(self.adjacentOffsetX, self.adjacentOffsetY) end
     -- end
     
-    self.player:render()
-    for k, fire in pairs(self.fires) do
-        if not fire.removed then fire:render() end
-    end
+    -- self.player:render()
+    -- for k, fire in pairs(self.fires) do
+    --     if not fire.removed then fire:render() end
+    -- end
     
-    if self.asteroid then
-        self.asteroid:render()
-    end
+    -- if self.asteroid then
+    --     self.asteroid:render()
+    -- end
+
+    -- render the level
+    self.level:render()
 
     -- draw player hearts, top of screen
     local healthLeft = self.player.health
