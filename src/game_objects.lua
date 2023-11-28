@@ -17,11 +17,28 @@ GAME_OBJECT_DEFS = {
                 texture = 'asteroid'
             },
             ['destroy'] = {
-                frames = {3, 4, 5, 6, 7, 8},
-                interval = 0.155,
+                frames = {1, 2, 3, 4, 5, 6, 7},
+                interval = 0.15,
                 texture = 'explosion'
             }
         },
 
     },
+    -- ['creature_1'] = {
+    --     type = 'creature',
+    --     moveSpeed = OBJECT_MOVE_SPEED,
+    --     defaultState = 'move',
+    --     states = {
+    --         ['idle'] = {
+    --             frames = {1, 2},
+    --             interval = 0.15,
+    --             texture = 'creatures'
+    --         },
+    --         ['move'] = {
+    --             frames = {1, 2},
+    --             interval = 0.15,
+    --             texture = 'creatures'
+    --         }
+    --     }
+    -- }
 }

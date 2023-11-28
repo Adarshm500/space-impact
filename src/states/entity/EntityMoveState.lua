@@ -14,8 +14,8 @@ function EntityMoveState:init(entity)
     self.entity:changeAnimation('move-left')
 
     -- used for AI control
-    self.moveDuration = 0
-    self.movementTimer = 0
+    -- self.moveDuration = 0
+    -- self.movementTimer = 0
 
     -- keeps track of whether we just hit a wall
     -- self.bumped = false

@@ -4,7 +4,7 @@ function StateMachine:init(states)
 	self.empty = {
 		render = function() end,
 		update = function() end,
-		-- processAI = function() end,
+		processAI = function() end,
 		enter = function() end,
 		exit = function() end
 	}
@@ -34,6 +34,6 @@ end
 	allow the player to use the base state and then call its own inherited version of that state to
 	save on code) See how PlayerWalkState calls EntityWalkState.update within :update for an example.
 ]]
--- function StateMachine:processAI(params, dt)
--- 	self.current:processAI(params, dt)
--- end
+function StateMachine:processAI(params, dt)
+	self.current:processAI(params, dt)
+end

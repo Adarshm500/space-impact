@@ -18,16 +18,6 @@ function PlayState:init()
     }
 
     self.level = Level(self.player)
-    -- self.fires = {}
-    
-    -- self.background = Background()
-
-    -- for i = 1, 2 do
-    --     self.fire = Fire(self.player.x , self.player.y + (i - 1) * 4)
-    --     self.timer = 0
-    --     -- inititate the lasers
-    --     table.insert(self.fires, self.fire)
-    -- end
     
     self.player.stateMachine = StateMachine {
         ['move'] = function() return PlayerMoveState(self.player) end,

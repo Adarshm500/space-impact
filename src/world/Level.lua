@@ -11,6 +11,8 @@ function Level:init(player)
     -- game objects in the level
     self.objects = {}
     self:generateObjects()
+    self.creatureFires = {}
+    self.creatureFireTimer = 0
 
     self.player = player
     self.fires = {}
@@ -30,54 +32,106 @@ function Level:init(player)
 end
 
 function Level:generateEntities()
+    self:generateCreatures()
 end
 
 function Level:generateObjects()
-    -- init at random height
+    -- init an asteroid at random height
+    self:generateAsteroids()
+end
+
+-- generate Asteroids
+function Level:generateAsteroids()
+    -- random speed and y
+    local asteroidSpeed = math.random(100, 200)
     local asteroidY = math.random(0, VIRTUAL_HEIGHT - 96)
     local asteroid = GameObject {
         animations = GAME_OBJECT_DEFS['asteroid'].states,
-        moveSpeed = GAME_OBJECT_DEFS['asteroid'].moveSpeed,
+        moveSpeed = asteroidSpeed,
 
         type = GAME_OBJECT_DEFS['asteroid'].type,
-        x = VIRTUAL_WIDTH - 96 ,
+        x = VIRTUAL_WIDTH + 96 ,
         y = asteroidY,
 
         width = 96,
         height = 96,
 
-        health = 10,
+        health = 4,
     }
 
     asteroid:changeState('move')
 
     asteroid.onCollide = function()
         if asteroid.state == 'move' then
-            asteroid:changeState('destroy')
-            -- shift the asteroid to ahead of itself because destroy is smaller than asteroid
-            asteroid.y = asteroid.y + 30
-            asteroid.x = asteroid.x + 20
-
-            asteroid.moveSpeed = 0
-
-            gSounds['explosion']:play()
-
-            -- asteroid:damage(1)
-
-            -- if asteroid.health == 0 then
+            if self.player:collides(asteroid) then
+                asteroid.health = 0
+            else
+                asteroid:damage(1)
+            end
+            if asteroid.health == 0 then
+                gSounds['explosion']:play()
+                asteroid:changeState('destroy')
                 asteroid.remove = true
-            -- end
-
+            end
         end
     end
 
     table.insert(self.objects, asteroid)
 end
 
+-- generateCreatures
+function Level:generateCreatures()
+    --randomly select a creature
+    creature_type = tostring(math.random(1, 10))
+    local creature = Creature {
+        animations = ENTITY_DEFS['creature_'..creature_type].animations,
+        moveSpeed = math.random(60, 100),
+        
+        x = VIRTUAL_WIDTH + 48,
+        y = math.random(0, VIRTUAL_HEIGHT - 48),
+
+        width = 48,
+        height = 48,
+
+        health = 6,
+
+        -- rendering and collision offset for spaced sprites
+        -- offsetY = -48
+    }
+
+    table.insert(self.entities, creature)
+
+    creature.stateMachine = StateMachine{
+        ['move'] = function() return CreatureMoveState(creature) end,
+        ['idle'] = function() return CreatureIdleState(creature) end
+    }
+    creature:changeState('move')
+end
+
 function Level:update(dt)
     self.fireTimer = self.fireTimer + dt
 
     self.player:update(dt)
+
+    if self.player.health < 1 then
+        gStateMachine:change('game-over')  
+    end
+
+    for i = #self.entities, 1, -1 do
+        local entity = self.entities[i]
+
+        if entity.health <= 0 then
+            entity.dead = true
+        elseif not entity.dead then
+            entity:processAI({level = self}, dt)
+            entity:update(dt)
+            if entity.fireTimer > 0.2 then
+                local fire = CreatureFire(entity.x, entity.y)
+                table.insert(self.creatureFires, fire)
+                entity.fireTimer = 0
+            end
+        end
+    end
 
     -- after every 0.2 seconds init a fire
     if self.fireTimer > 0.2 then
@@ -89,42 +143,12 @@ function Level:update(dt)
     end
 
     -- randomly init asteroids at random location and random speed
-    if math.random(20) == 1 then
-        local asteroidY = math.random(0, VIRTUAL_HEIGHT - 96)
-        local asteroidSpeed = math.random(100, 300)
-        local asteroid = GameObject {
-            animations = GAME_OBJECT_DEFS['asteroid'].states,
-            moveSpeed = asteroidSpeed,
-    
-            type = GAME_OBJECT_DEFS['asteroid'].type,
-            x = VIRTUAL_WIDTH + 96 ,
-            y = asteroidY,
-    
-            width = 96,
-            height = 96,
-    
-            health = 8,
-        }
-    
-        asteroid:changeState('move')
-        
-        asteroid.onCollide = function()
-            if asteroid.state == 'move' then
-                asteroid:changeState('destroy')
-                -- shift the asteroid to ahead of itself because destroy is smaller than asteroid
-                asteroid.y = asteroid.y + 30
-                asteroid.x = asteroid.x + 20
+    if math.random(200) == 1 then
+        self:generateAsteroids()
+    end
 
-                asteroid.moveSpeed = 0
-
-                gSounds['explosion']:play()
-
-                asteroid.remove = true
-
-            end
-        end
-
-        table.insert(self.objects, asteroid)
+    if math.random(200) == 1 then
+        self:generateCreatures()
     end
 
     -- update the lasers
@@ -143,8 +167,16 @@ function Level:update(dt)
     for k, object in pairs(self.objects) do
         object:update(dt)
         -- check collision with player
+        -- if asteroid then only collides when in move state
         if self.player:collides(object) then
-            object:onCollide()
+            if object.type == 'asteroid' then
+                if object.state == 'move' then
+                    object:onCollide()
+                    self.player:damage(2)
+                end
+            else
+                object:onCollide()
+            end
         end
         
         -- check collision with lasers
@@ -197,6 +229,15 @@ function Level:render()
     end
 
     -- render entities
+    for k, entity in pairs(self.entities) do
+        if not entity.dead then
+            entity:render()
+        end
+    end
+    -- render creatureFire
+    for k, fire in pairs(self.creatureFires) do
+        fire:render()
+    end
 
     -- render objects
     for k, object in pairs(self.objects) do

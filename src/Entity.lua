@@ -36,6 +36,8 @@ function Entity:init(def)
     self.flashTimer = 0
 
     self.dead = false
+
+    self.direction = 'up'
 end
 
 function Entity:createAnimations(animations)
@@ -97,9 +99,9 @@ function Entity:update(dt)
     end
 end
 
--- function Entity:processAI(params, dt)
---     self.stateMachine:processAI(params, dt)
--- end
+function Entity:processAI(params, dt)
+    self.stateMachine:processAI(params, dt)
+end
 
 function Entity:render(adjacentOffsetX, adjacentOffsetY)
     

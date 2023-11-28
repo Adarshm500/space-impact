@@ -15,6 +15,7 @@ function PlayerMoveState:init(player)
     -- render offset for spaced character sprite; negated in render function of state
     self.entity.offsetY = 0
     self.entity.offsetX = 0
+    self.entity:changeAnimation('move-left')
 end
 
 function PlayerMoveState:update(dt)

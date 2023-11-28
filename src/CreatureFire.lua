@@ -1,25 +1,23 @@
-Fire = Class{}
+CreatureFire = Class{}
 
-function Fire:init(playerX, playerY)
-    self.x = playerX + 72
-    self.y = playerY + 36
+function CreatureFire:init(creatureX, creatureY)
+    self.x = creatureX - 36
+    self.y = creatureY - 24
     self.width = 28
-    self.height = 2
-    self.dx = 200
+    self.height = 28
+    self.dx = -200
     self.removed = false
-    gSounds['shoot']:stop()
-    gSounds['shoot']:setVolume(0.25)
-    gSounds['shoot']:play()
+    print('init')
 end
 
-function Fire:update(dt)
-    if self.x > VIRTUAL_WIDTH then
+function CreatureFire:update(dt)
+    if self.x + self.width < 0 then 
         self.removed = true
     end
     self.x = self.x + self.dx * dt
 end
 
-function Fire:collides(target)
+function CreatureFire:collides(target)
     local yOffset = 27
     local xOffset = 27
  
@@ -33,9 +31,8 @@ function Fire:collides(target)
                 selfY > target.y + target.height)     
 end
 
-function Fire:render()
-    love.graphics.draw(gTextures['fire-1'],
-    self.x, self.y,
-    0,
+function CreatureFire:render()
+    love.graphics.draw(gTextures['creature-fire'], self.x, self.y, 
+    0, 
     16 / 24, 16 / 24)
 end

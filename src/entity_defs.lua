@@ -43,37 +43,144 @@ ENTITY_DEFS = {
         --     },
         }
     },
-    ['asteroid'] = {
-        moveSpeed = ENTITY_MOVE_SPEED,
+    ['creature_1'] = {
         animations = {
-            ['move-left'] = {
-                frames = {1},
-                texture = 'asteroid'
+            ['move'] = {
+                frames = {1, 2},
+                interval = 0.2,
+                texture = 'creatures'
+            },
+            ['idle'] = {
+                frames = {1, 2},
+                interval = 0.2,
+                texture = 'creatures'
             }
         }
-    }
-    -- ['skeleton'] = {
-    --     texture = 'entities',
-    --     animations = {
-    --         ['walk-left'] = {
-    --             frames = {22, 23, 24, 23},
-    --             interval = 0.2
-    --         },
-    --         ['walk-right'] = {
-    --             frames = {34, 35, 36, 35},
-    --             interval = 0.2
-    --         },
-    --         ['walk-down'] = {
-    --             frames = {10, 11, 12, 11},
-    --             interval = 0.2
-    --         },
-    --         ['walk-up'] = {
-    --             frames = {46, 47, 48, 47},
-    --             interval = 0.2
-    --         },
-    --         ['idle-left'] = {
-    --             frames = {23}
-    --         },
-    --     }
-    -- },
+    },
+    ['creature_2'] = {
+        animations = {
+            ['move'] = {
+                frames = {3, 4},
+                interval = 0.2,
+                texture = 'creatures'
+            },
+            ['idle'] = {
+                frames = {3, 4},
+                interval = 0.2,
+                texture = 'creatures'
+            }
+        }
+    },    
+    ['creature_3'] = {
+        animations = {
+            ['move'] = {
+                frames = {7, 8},
+                interval = 0.2,
+                texture = 'creatures'
+            },
+            ['idle'] = {
+                frames = {7, 8},
+                interval = 0.2,
+                texture = 'creatures'
+            }
+        }
+    },    
+    ['creature_4'] = {
+        animations = {
+            ['move'] = {
+                frames = {11, 12},
+                interval = 0.2,
+                texture = 'creatures'
+            },
+            ['idle'] = {
+                frames = {11, 12},
+                interval = 0.2,
+                texture = 'creatures'
+            }
+        }
+    },    
+    ['creature_5'] = {
+        animations = {
+            ['move'] = {
+                frames = {19, 20},
+                interval = 0.2,
+                texture = 'creatures'
+            },
+            ['idle'] = {
+                frames = {19, 20},
+                interval = 0.2,
+                texture = 'creatures'
+            }
+        }
+    },    
+    ['creature_6'] = {
+        animations = {
+            ['move'] = {
+                frames = {23, 24},
+                interval = 0.2,
+                texture = 'creatures'
+            },
+            ['idle'] = {
+                frames = {23, 24},
+                interval = 0.2,
+                texture = 'creatures'
+            }
+        }
+    },    
+    ['creature_7'] = {
+        animations = {
+            ['move'] = {
+                frames = {25, 26},
+                interval = 0.2,
+                texture = 'creatures'
+            },
+            ['idle'] = {
+                frames = {25, 26},
+                interval = 0.2,
+                texture = 'creatures'
+            }
+        }
+    },    
+    ['creature_8'] = {
+        animations = {
+            ['move'] = {
+                frames = {33, 34},
+                interval = 0.2,
+                texture = 'creatures'
+            },
+            ['idle'] = {
+                frames = {33, 34},
+                interval = 0.2,
+                texture = 'creatures'
+            }
+        }
+    },    
+    ['creature_9'] = {
+        animations = {
+            ['move'] = {
+                frames = {51, 52},
+                interval = 0.2,
+                texture = 'creatures'
+            },
+            ['idle'] = {
+                frames = {17, 18},
+                interval = 0.2,
+                texture = 'creatures'
+            }
+        }
+    },    
+    ['creature_10'] = {
+        animations = {
+            ['move'] = {
+                frames = {61, 62},
+                interval = 0.2,
+                texture = 'creatures'
+            },
+            ['idle'] = {
+                frames = {61, 62},
+                interval = 0.2,
+                texture = 'creatures'
+            }
+        }
+    },
 }

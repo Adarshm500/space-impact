@@ -28,6 +28,8 @@ require 'src/Util'
 require 'src/GameObject'
 require 'src/game_objects'
 require 'src/Hitbox'
+require 'src/Creature'
+require 'src/CreatureFire'
 
 -- world
 require 'src/world/Level'
@@ -41,9 +43,13 @@ require 'src/states/entity/EntityMoveState'
 require 'src/states/entity/player/PlayerIdleState'
 require 'src/states/entity/player/PlayerMoveState'
 
+require 'src/states/entity/creature/CreatureIdleState'
+require 'src/states/entity/creature/CreatureMoveState'
+
 -- game states
 require 'src/states/game/PlayState'
 require 'src/states/game/StartState'
+require 'src/states/game/GameOverState'
 gSounds = {
     ['shoot'] = love.audio.newSource('sounds/shoot4.wav', 'static'),
     ['explosion'] = love.audio.newSource('sounds/explosion.wav', 'static'),
@@ -63,8 +69,10 @@ gTextures = {
     ['spaceship-move-right'] =  love.graphics.newImage('graphics/Fighter/Boost.png'),
     ['fire-1'] = love.graphics.newImage('graphics/Fighter/Charge_1.png'),
     ['asteroid'] = love.graphics.newImage('graphics/asteroid/asteroid.png'),
-    ['explosion'] = love.graphics.newImage('graphics/Explosion.png'),
-    ['hearts'] = love.graphics.newImage('graphics/hearts.png')
+    ['explosion'] = love.graphics.newImage('graphics/asteroid/explosion.png'),
+    ['hearts'] = love.graphics.newImage('graphics/hearts.png'),
+    ['creatures'] = love.graphics.newImage('graphics/Creatures.png'),
+    ['creature-fire'] = love.graphics.newImage('graphics/creature_fire.png')
 }
 
 gFrames = {
@@ -75,8 +83,10 @@ gFrames = {
     ['spaceship-move-right'] = GenerateQuads(gTextures['spaceship-move-right'], 192, 192),
     ['fire-1'] = GenerateQuads(gTextures['fire-1'], 28, 28),
     ['asteroid'] = GenerateQuads(gTextures['asteroid'], 96, 96),
-    ['explosion'] = GenerateQuads(gTextures['explosion'], 32, 32),
-    ['hearts'] = GenerateQuads(gTextures['hearts'], 16, 16)
+    ['explosion'] = GenerateQuads(gTextures['explosion'], 96, 96),
+    ['hearts'] = GenerateQuads(gTextures['hearts'], 16, 16),
+    ['creatures'] = GenerateQuads(gTextures['creatures'], 48, 48),
+    ['creature-fire'] = GenerateQuads(gTextures['creature-fire'], 28, 28),
 }
 gFonts = {
     ['small'] = love.graphics.newFont('fonts/font.ttf', 8),

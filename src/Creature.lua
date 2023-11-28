@@ -1,16 +1,15 @@
-Player = Class{__includes = Entity}
+Creature = Class{__includes = Entity}
 
-function Player:init(def)
+function Creature:init(def)
     Entity.init(self, def)
-    -- self.canChangeRoom = true
-    -- print(def)
+    self.fireTimer = 0
 end
 
-function Player:update(dt)
+function Creature:update(dt)
     Entity.update(self, dt)
 end
 
-function Player:collides(target)
+function Creature:collides(target)
     local yOffset = 60
     local xOffset = 50
  
@@ -24,10 +23,6 @@ function Player:collides(target)
                 selfY > target.y + target.height)  
 end
 
-function Player:render()
+function Creature:render()
     Entity.render(self)
-    
-    -- love.graphics.setColor(255, 0, 255, 255)
-    -- love.graphics.rectangle('line', self.x, self.y, self.width, self.height)
-    -- love.graphics.setColor(255, 255, 255, 255)
 end

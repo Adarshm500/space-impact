@@ -31,7 +31,7 @@ function GameObject:init(def)
     self.health = def.health
 
     -- default empty collision callback
-    self.onCollide = function() end
+    self.onCollide = function(target) end
 
     self.remove = false
     self.removing = false -- flag to check if the process of object removal going on (to add some functionality like shatter effect)
