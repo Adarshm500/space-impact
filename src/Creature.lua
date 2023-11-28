@@ -6,6 +6,7 @@ function Creature:init(def)
 end
 
 function Creature:update(dt)
+    self.fireTimer = self.fireTimer + dt
     Entity.update(self, dt)
 end
 

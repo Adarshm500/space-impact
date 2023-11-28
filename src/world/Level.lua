@@ -119,7 +119,7 @@ function Level:update(dt)
 
     for i = #self.entities, 1, -1 do
         local entity = self.entities[i]
-
+        
         if entity.health <= 0 then
             entity.dead = true
         elseif not entity.dead then
