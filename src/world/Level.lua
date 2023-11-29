@@ -21,14 +21,19 @@ function Level:init(player)
     
     self.fireTimer = 0
     for i = 1, 2 do
-        self.fire = Fire(self.player.x , self.player.y + (i - 1) * 4)
+        self.fire = Fire(self.player.x , self.player.y + (i - 1) * 4, 'primary')
         self.fireTimer = 0
         -- inititate the lasers
         table.insert(self.fires, self.fire)
     end
 
+    self.score = 0
+
     -- timer for animation before removing objects and entities
     self.delayTimer = 0
+
+    -- timer to gradually increase the difficulty with time
+    self.timer = 0
 end
 
 function Level:generateEntities()
@@ -48,8 +53,8 @@ function Level:generateAsteroids()
     local asteroid = GameObject {
         animations = GAME_OBJECT_DEFS['asteroid'].states,
         moveSpeed = asteroidSpeed,
-
         type = GAME_OBJECT_DEFS['asteroid'].type,
+
         x = VIRTUAL_WIDTH + 96 ,
         y = asteroidY,
 
@@ -65,6 +70,10 @@ function Level:generateAsteroids()
         if asteroid.state == 'move' then
             if self.player:collides(asteroid) then
                 asteroid.health = 0
+                if not self.player.invulnerable then
+                    self.player:damage(2)
+                    self.player:goInvulnerable(2)
+                end
             else
                 asteroid:damage(1)
             end
@@ -110,14 +119,26 @@ end
 
 function Level:update(dt)
     self.fireTimer = self.fireTimer + dt
+    self.timer = self.timer + dt
 
     -- randomly init asteroids at random location and random speed
-    if math.random(200) == 1 then
-        self:generateAsteroids()
-    end
+    local maxDifficultyLevel = 4
+    -- increase difficulty after 15 seconds
+    local difficultyDelay = 25
 
-    if math.random(200) == 1 then
-        self:generateCreatures()
+    local difficultyLevel = math.min(math.floor(self.timer / difficultyDelay) + 1, maxDifficultyLevel)
+    -- local difficultyLevel = math.floor(self.timer / 15) + 1
+
+    for i = 1, difficultyLevel do
+        local enemySpawnProbability = (i + 9) / 1800
+        if math.random(1 / enemySpawnProbability) == 1 then
+            self:generateAsteroids()
+        end
+
+        print(1 / enemySpawnProbability)
+        if math.random(1 / enemySpawnProbability) == 1 then
+            self:generateCreatures()
+        end
     end
 
     self.player:update(dt)
@@ -157,13 +178,18 @@ function Level:update(dt)
     self.fires = newFires
 
     -- after every 0.2 seconds init a fire
-    if self.fireTimer > 0.2 then
-        for i = 1,2 do
-            self.fire = Fire(self.player.x, self.player.y + (i - 1) * 4)
-            table.insert(self.fires, self.fire)
+    if self.fireTimer > 0.17 then
+        for i = 1, math.min(difficultyLevel + 1, 4) do
+            local fire
+            if i <= 2 then
+                fire = Fire(self.player.x, self.player.y + (i - 1) * 4, 'primary')
+            else
+                fire = Fire(self.player.x, self.player.y + (i - 3) * 10, 'secondary')
+            end
             self.fireTimer = 0
+            table.insert(self.fires, fire)
         end
-    end
+    end    
 
     -- table to keep updating the object and remove the ones needed to remove
     local newEntities = {}
@@ -171,6 +197,7 @@ function Level:update(dt)
     for k, entity in pairs(self.entities) do
         if entity.health <= 0 then
             entity.dead = true
+            self:generateHeart(entity)
         elseif not entity.dead then
             entity:processAI({level = self}, dt)
             entity:update(dt)
@@ -180,10 +207,14 @@ function Level:update(dt)
                 entity.fireTimer = 0
             end
         end
+        entity.prevHealth = entity.health
 
         if self.player:collides(entity) then
             entity.dead = true
-            self.player:damage(2)
+            if not self.player.invulnerable then
+                self.player:damage(2)
+                self.player:goInvulnerable(2)
+            end
         end
         
         -- remove the flagged to remove objects
@@ -206,7 +237,6 @@ function Level:update(dt)
             if object.type == 'asteroid' then
                 if object.state == 'move' then
                     object:onCollide()
-                    self.player:damage(2)
                 end
             else
                 object:onCollide()
@@ -220,7 +250,9 @@ function Level:update(dt)
             end
             if fire:collides(object) then
                 object:onCollide()
-                fire.remove = true
+                if object.type == 'asteroid' and object.state == 'move' then
+                    fire.remove = true
+                end
             end
         end
 
@@ -259,8 +291,10 @@ function Level:update(dt)
         -- collision 
         if self.player:collides(creatureFire) then
             creatureFire.remove = true
-            self.player:damage(1)
-            -- table.remove(self.fires, k)
+            if not self.player.invulnerable then
+                self.player:damage(1)
+                self.player:goInvulnerable(2)
+            end
         end
         if not creatureFire.remove then
             table.insert(newCreatureFires, creatureFire)
@@ -271,6 +305,7 @@ function Level:update(dt)
     self.creatureFires = newCreatureFires
 
     self.background:update(dt)
+    print(self.player.health)
 end
 
 function Level:render()
@@ -297,5 +332,38 @@ function Level:render()
     -- render objects
     for k, object in pairs(self.objects) do
         object:render()
+    end
+end
+
+function Level:generateHeart(entity) 
+    -- chance to generate a heart
+    if math.random(3) == 1 and entity.prevHealth > 0 then
+        print('heartSpawn')
+        local heart = GameObject{
+            animations = GAME_OBJECT_DEFS['heart'].states,
+            moveSpeed = GAME_OBJECT_DEFS['heart'].moveSpeed,
+            type = GAME_OBJECT_DEFS['heart'].type,
+
+            x = entity.x + 24,
+            y = entity.y + 24,
+
+            width = 16,
+            height = 16
+        }
+        heart:changeState('move')
+
+        -- onCollide the heart should disappear and the health should increase
+        heart.onCollide = function(obj)
+            -- ensure that the health should increase and to the extent that it isn't beyond the 3 hearts
+            if self.player:collides(heart) then
+                if self.player.health < 5 then
+                    self.player:damage(-2)
+                elseif self.player.health == 5 then
+                    self.player:damage(-1)
+                end
+                heart.remove = true
+            end
+        end
+        table.insert(self.objects, heart)
     end
 end

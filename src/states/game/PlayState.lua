@@ -11,7 +11,7 @@ function PlayState:init()
         width = 96,
         height = 96,
 
-        health = 10,
+        health = 6,
 
         -- rendering and collision offset for spaced sprites
         offsetY = -48
@@ -30,7 +30,7 @@ function PlayState:init()
     -- end
 
     gSounds['music']:setLooping(true)
-    -- gSounds['music']:setVolume(0.5)
+    gSounds['music']:setVolume(0.5)
     gSounds['music']:play()
 end
 
@@ -80,13 +80,15 @@ function PlayState:render()
     -- end
 
     -- render the level
+    love.graphics.push()
     self.level:render()
+    love.graphics.pop()
 
     -- draw player hearts, top of screen
     local healthLeft = self.player.health
     local heartFrame = 1
 
-    for i = 1, 5 do
+    for i = 1, 3 do
         if healthLeft > 1 then
             heartFrame = 5
         elseif healthLeft == 1 then

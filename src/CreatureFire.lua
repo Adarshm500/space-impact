@@ -5,7 +5,7 @@ function CreatureFire:init(creatureX, creatureY)
     self.y = creatureY + 20
     self.width = 28
     self.height = 28
-    self.dx = -200
+    self.dx = -150
     self.remove = false
 end
 

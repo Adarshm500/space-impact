@@ -11,8 +11,8 @@ function Player:update(dt)
 end
 
 function Player:collides(target)
-    local yOffset = 50
-    local xOffset = 50
+    local yOffset = 40
+    local xOffset = 40
  
     local selfY, selfHeight = self.y + yOffset, self.height - 2 * yOffset
 

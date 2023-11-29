@@ -41,4 +41,15 @@ GAME_OBJECT_DEFS = {
     --         }
     --     }
     -- }
+    ['heart'] = {
+        type = 'heart',
+        moveSpeed = OBJECT_MOVE_SPEED,
+        defaultState = 'move',
+        states = {
+            ['move'] = {
+                frames = {5},
+                texture = 'hearts'
+            }
+        }
+    }
 }
