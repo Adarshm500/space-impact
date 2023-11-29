@@ -85,7 +85,7 @@ function Level:generateCreatures()
     creature_type = tostring(math.random(1, 10))
     local creature = Creature {
         animations = ENTITY_DEFS['creature_'..creature_type].animations,
-        moveSpeed = math.random(60, 100),
+        moveSpeed = math.random(50, 80),
         
         x = VIRTUAL_WIDTH + 48,
         y = math.random(0, VIRTUAL_HEIGHT - 48),
@@ -93,7 +93,7 @@ function Level:generateCreatures()
         width = 48,
         height = 48,
 
-        health = 6,
+        health = 8,
 
         -- rendering and collision offset for spaced sprites
         -- offsetY = -48
@@ -111,15 +111,64 @@ end
 function Level:update(dt)
     self.fireTimer = self.fireTimer + dt
 
+    -- randomly init asteroids at random location and random speed
+    if math.random(200) == 1 then
+        self:generateAsteroids()
+    end
+
+    if math.random(200) == 1 then
+        self:generateCreatures()
+    end
+
     self.player:update(dt)
 
     if self.player.health < 1 then
         gStateMachine:change('game-over')  
     end
 
-    for i = #self.entities, 1, -1 do
-        local entity = self.entities[i]
-        
+    -- table to remove the non-active fires
+    local newFires = {}
+    -- update the lasers
+    for k, fire in pairs(self.fires) do
+        fire:update(dt)
+
+        -- check collision with the entities
+        for k, entity in pairs(self.entities) do
+            -- collision effect of player fires with entities
+            if fire:collides(entity) then
+                entity:damage(2)
+                fire.remove = true
+            end
+        end
+
+        -- check collision with the creatureFires
+        for k, creatureFire in pairs(self.creatureFires) do
+            if fire:collides(creatureFire) then
+                creatureFire.remove = true
+                fire.remove = true
+            end
+        end
+
+        if not fire.remove then
+            table.insert(newFires, fire)
+        end
+    end
+
+    self.fires = newFires
+
+    -- after every 0.2 seconds init a fire
+    if self.fireTimer > 0.2 then
+        for i = 1,2 do
+            self.fire = Fire(self.player.x, self.player.y + (i - 1) * 4)
+            table.insert(self.fires, self.fire)
+            self.fireTimer = 0
+        end
+    end
+
+    -- table to keep updating the object and remove the ones needed to remove
+    local newEntities = {}
+
+    for k, entity in pairs(self.entities) do
         if entity.health <= 0 then
             entity.dead = true
         elseif not entity.dead then
@@ -131,35 +180,20 @@ function Level:update(dt)
                 entity.fireTimer = 0
             end
         end
-    end
 
-    -- after every 0.2 seconds init a fire
-    if self.fireTimer > 0.2 then
-        for i = 1,2 do
-            self.fire = Fire(self.player.x, self.player.y + (i - 1) * 4)
-            table.insert(self.fires, self.fire)
-            self.fireTimer = 0
+        if self.player:collides(entity) then
+            entity.dead = true
+            self.player:damage(2)
+        end
+        
+        -- remove the flagged to remove objects
+        if not entity.dead then
+            table.insert(newEntities, entity)
         end
     end
 
-    -- randomly init asteroids at random location and random speed
-    if math.random(200) == 1 then
-        self:generateAsteroids()
-    end
-
-    if math.random(200) == 1 then
-        self:generateCreatures()
-    end
-
-    -- update the lasers
-    for k, fire in pairs(self.fires) do
-        fire:update(dt)
-
-        -- remove the fires crossing the right boundary
-        if fire.x > VIRTUAL_WIDTH then
-            table.remove(self.fires, k)
-        end
-    end
+    -- update the entities table to only include the non-dead entities
+    self.entities = newEntities
 
     -- table to keep updating the object and remove the ones needed to remove
     local newObjects = {}
@@ -186,7 +220,7 @@ function Level:update(dt)
             end
             if fire:collides(object) then
                 object:onCollide()
-                table.remove(self.fires, k)
+                fire.remove = true
             end
         end
 
@@ -213,7 +247,28 @@ function Level:update(dt)
         end
     end
 
+    -- update the objects table with only non-destroyed objects
     self.objects = newObjects
+
+    -- table to keep updating the object and remove the ones needed to remove
+    local newCreatureFires = {}
+    -- update the fires of creature
+    for k, creatureFire in pairs(self.creatureFires) do
+        creatureFire:update(dt)
+
+        -- collision 
+        if self.player:collides(creatureFire) then
+            creatureFire.remove = true
+            self.player:damage(1)
+            -- table.remove(self.fires, k)
+        end
+        if not creatureFire.remove then
+            table.insert(newCreatureFires, creatureFire)
+        end
+    end
+
+    -- update the Fires table to only include the active fires
+    self.creatureFires = newCreatureFires
 
     self.background:update(dt)
 end

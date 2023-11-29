@@ -7,7 +7,7 @@ function CreatureMoveState:init(creature)
     else
         self.entity.direction = 'down'
     end
-    self.entity:changeAnimation('move')
+    self.entity:changeAnimation('idle')
 
     -- used for AI control
     self.moveDuration = 0
@@ -51,7 +51,7 @@ function CreatureMoveState:processAI(params, dt)
         self.movementTimer = 0
 
         -- chance to go idle
-        if math.random(3) == 1 then
+        if math.random(2) == 1 then
             self.entity:changeState('idle')
         else
             self.moveDuration = math.random(5)

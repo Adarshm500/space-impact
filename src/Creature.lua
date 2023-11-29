@@ -11,8 +11,8 @@ function Creature:update(dt)
 end
 
 function Creature:collides(target)
-    local yOffset = 60
-    local xOffset = 50
+    local yOffset = 0
+    local xOffset = 0
  
     local selfY, selfHeight = self.y + yOffset, self.height - 2 * yOffset
 

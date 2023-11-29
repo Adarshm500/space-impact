@@ -11,7 +11,7 @@ function PlayState:init()
         width = 96,
         height = 96,
 
-        health = 6,
+        health = 10,
 
         -- rendering and collision offset for spaced sprites
         offsetY = -48
@@ -86,7 +86,7 @@ function PlayState:render()
     local healthLeft = self.player.health
     local heartFrame = 1
 
-    for i = 1, 3 do
+    for i = 1, 5 do
         if healthLeft > 1 then
             heartFrame = 5
         elseif healthLeft == 1 then

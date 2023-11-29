@@ -1,18 +1,17 @@
 CreatureFire = Class{}
 
 function CreatureFire:init(creatureX, creatureY)
-    self.x = creatureX - 36
-    self.y = creatureY - 24
+    self.x = creatureX
+    self.y = creatureY + 20
     self.width = 28
     self.height = 28
     self.dx = -200
-    self.removed = false
-    print('init')
+    self.remove = false
 end
 
 function CreatureFire:update(dt)
     if self.x + self.width < 0 then 
-        self.removed = true
+        self.remove = true
     end
     self.x = self.x + self.dx * dt
 end
