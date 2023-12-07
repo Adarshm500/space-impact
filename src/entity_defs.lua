@@ -1,11 +1,3 @@
---[[
-    GD50
-    Legend of Zelda
-
-    Author: Colton Ogden
-    cogden@cs50.harvard.edu
-]]
-
 ENTITY_DEFS = {
     ['player'] = {
         moveSpeed = SPACESHIP_SPEED,

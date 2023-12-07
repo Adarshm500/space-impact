@@ -128,9 +128,11 @@ function Level:update(dt)
 
     local difficultyLevel = math.min(math.floor(self.timer / difficultyDelay) + 1, maxDifficultyLevel)
     -- local difficultyLevel = math.floor(self.timer / 15) + 1
-
+    -- if math.random(220) == 1 then
+        
+    -- end 
     for i = 1, difficultyLevel do
-        local enemySpawnProbability = (i + 9) / 1800
+        local enemySpawnProbability = (i + 9) / 2200
         if math.random(1 / enemySpawnProbability) == 1 then
             self:generateAsteroids()
         end
@@ -201,7 +203,7 @@ function Level:update(dt)
         elseif not entity.dead then
             entity:processAI({level = self}, dt)
             entity:update(dt)
-            if entity.fireTimer > 0.2 then
+            if entity.fireTimer > 0.25 and math.abs(self.player.y - entity.y) < 64 then
                 local fire = CreatureFire(entity.x, entity.y)
                 table.insert(self.creatureFires, fire)
                 entity.fireTimer = 0

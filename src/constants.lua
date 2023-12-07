@@ -2,9 +2,7 @@
     CS50x Final Project
     Author: Adarsh Maurya
 
-    -- constants --
-
-    Some global constants for our application.
+    -- global constants --
 ]]
 -- size we're trying to emulate with push
 VIRTUAL_WIDTH = 768
@@ -19,9 +17,6 @@ TILE_SIZE = 48
 
 -- player movement speed
 SPACESHIP_SPEED = 200
-
--- camera scrolling speed
--- CAMERA_SPEED = 200
 
 -- speed of scrolling background
 BACKGROUND_SCROLL_SPEED = 150

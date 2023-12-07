@@ -1,11 +1,3 @@
---[[
-    GD50
-    Legend of Zelda
-
-    Author: Colton Ogden
-    cogden@cs50.harvard.edu
-]]
-
 EntityMoveState = Class{__includes = BaseState}
 
 -- function EntityMoveState:init(entity, dungeon)
