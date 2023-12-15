@@ -48,6 +48,7 @@ function PlayState:render()
     self.level:render()
     love.graphics.pop()
 
+    -- following code snippet is adapted from gd50
     -- draw player hearts, top of screen
     local healthLeft = self.player.health
     local heartFrame = 1
@@ -66,4 +67,12 @@ function PlayState:render()
         
         healthLeft = healthLeft - 2
     end
+
+    love.graphics.setColor(244/255, 255/255, 113/255, 1)
+    love.graphics.setFont(gFonts['score'])
+    love.graphics.printf("Score ", 0, 8, VIRTUAL_WIDTH - 96, 'right')
+    love.graphics.printf(self.level.score, 0, 8, VIRTUAL_WIDTH - 16, 'right')
+    love.graphics.setColor(1, 1, 1, 1)
+    love.graphics.setFont(gFonts['small'])
+
 end

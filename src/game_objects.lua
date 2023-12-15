@@ -16,23 +16,6 @@ GAME_OBJECT_DEFS = {
         },
 
     },
-    -- ['creature_1'] = {
-    --     type = 'creature',
-    --     moveSpeed = OBJECT_MOVE_SPEED,
-    --     defaultState = 'move',
-    --     states = {
-    --         ['idle'] = {
-    --             frames = {1, 2},
-    --             interval = 0.15,
-    --             texture = 'creatures'
-    --         },
-    --         ['move'] = {
-    --             frames = {1, 2},
-    --             interval = 0.15,
-    --             texture = 'creatures'
-    --         }
-    --     }
-    -- }
     ['heart'] = {
         type = 'heart',
         moveSpeed = OBJECT_MOVE_SPEED,

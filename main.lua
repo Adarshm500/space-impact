@@ -5,13 +5,29 @@
     Author: Adarsh Maurya
     adarshmaurya500@gmail.com
     
-    A classic space shooter game using a free art pack.
+    A classic space shooter game using free art packs.
 
     Art pack:
-    https://opengameart.org/content/kenney-16x16
+    spaceship
+    https://craftpix.net/freebies/free-spaceship-pixel-art-sprite-sheets/
+
+    creatures:
+    https://www.gamedevmarket.net/asset/deep-sea-creatures
+    by pixel_emm
+
+    Boss:
+    https://www.gamedevmarket.net/asset/free-2d-space-shooter-pack
+
+    asteroid:
+    https://foozlecc.itch.io/void-environment-pack
+    Void - Environment Pack (1.0)
+    License: (Creative Commons Zero, CC0)
+
+    background:
+    https://opengameart.org/content/seamless-space-backgrounds
 
     Music:
-    https://freesound.org/people/Sirkoto51/sounds/393818/
+    https://opengameart.org/content/cyberpunk-moonlight-sonata
 ]]
 require 'src/Dependencies'
 

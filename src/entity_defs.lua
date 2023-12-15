@@ -27,12 +27,6 @@ ENTITY_DEFS = {
                 interval = 0.05,
                 texture = 'spaceship-idle'
             },
-        --     ['sword-left'] = {
-        --         frames = {13, 14, 15, 16},
-        --         interval = 0.05,
-        --         looping = false,
-        --         texture = 'character-swing-sword'
-        --     },
         }
     },
     ['creature_1'] = {

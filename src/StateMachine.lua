@@ -1,3 +1,11 @@
+--[[
+    code from GD50
+
+    -- StateMachine Class --
+
+    Author: Colton Ogden
+    cogden@cs50.harvard.edu
+]]
 StateMachine = Class{}
 
 function StateMachine:init(states)

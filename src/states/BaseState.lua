@@ -1,3 +1,11 @@
+--[[
+    code from GD50
+
+    -- BaseState Class --
+
+    Author: Colton Ogden
+    cogden@cs50.harvard.edu
+]]
 BaseState = Class{}
 
 function BaseState:init() end

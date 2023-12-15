@@ -29,6 +29,8 @@ function Level:init(player)
 
     self.score = 0
 
+    self.scoreObjects = {}
+
     -- timer for animation before removing objects and entities
     self.delayTimer = 0
 
@@ -71,7 +73,7 @@ function Level:generateAsteroids()
             if self.player:collides(asteroid) then
                 asteroid.health = 0
                 if not self.player.invulnerable then
-                    self.player:damage(2)
+                    self.player:damage(5)
                     self.player:goInvulnerable(2)
                 end
             else
@@ -109,7 +111,7 @@ function Level:generateCreatures()
     }
 
     table.insert(self.entities, creature)
-
+    
     creature.stateMachine = StateMachine{
         ['move'] = function() return CreatureMoveState(creature) end,
         ['idle'] = function() return CreatureIdleState(creature) end
@@ -120,24 +122,24 @@ end
 function Level:update(dt)
     self.fireTimer = self.fireTimer + dt
     self.timer = self.timer + dt
-
+    
     -- randomly init asteroids at random location and random speed
     local maxDifficultyLevel = 4
     -- increase difficulty after 15 seconds
     local difficultyDelay = 25
-
+    
     local difficultyLevel = math.min(math.floor(self.timer / difficultyDelay) + 1, maxDifficultyLevel)
-    -- local difficultyLevel = math.floor(self.timer / 15) + 1
-    -- if math.random(220) == 1 then
-        
-    -- end 
+    
+    -- score points after alien kill
+    -- change the scorepoints according to the level
+    local scorePoints = 100 * difficultyLevel
+    
     for i = 1, difficultyLevel do
         local enemySpawnProbability = (i + 9) / 2200
         if math.random(1 / enemySpawnProbability) == 1 then
             self:generateAsteroids()
         end
 
-        print(1 / enemySpawnProbability)
         if math.random(1 / enemySpawnProbability) == 1 then
             self:generateCreatures()
         end
@@ -199,6 +201,10 @@ function Level:update(dt)
     for k, entity in pairs(self.entities) do
         if entity.health <= 0 then
             entity.dead = true
+            self.score = self.score + scorePoints
+            -- generate a score object to show score increase
+            table.insert(self.scoreObjects, Score(scorePoints, entity.x - 48, entity.y + entity.height / 2))
+            -- generate a heart randomly after entity death
             self:generateHeart(entity)
         elseif not entity.dead then
             entity:processAI({level = self}, dt)
@@ -260,7 +266,7 @@ function Level:update(dt)
 
         -- add destruction effect to the asteroid
         if (object.remove) or (object.removing) then
-            -- include a shatter effect before disappearance for pot
+            -- include a destruction effect before disappearance for asteroid
             if object.type == 'asteroid' then
                 object.remove = false
                 object.removing = true
@@ -268,7 +274,11 @@ function Level:update(dt)
                 object.timer = object.timer + dt
                 object.onCollide()
                 if object.timer > 0.7 then
-                    -- removingPot = false
+                    self.score = self.score + 50
+                    -- generate a score object to show score increase
+                    -- local score = 
+                    table.insert(self.scoreObjects, Score(50, object.x - 48, object.y + object.height / 2))
+
                     object.removing = false
                     object.remove = true
                 end
@@ -306,8 +316,20 @@ function Level:update(dt)
     -- update the Fires table to only include the active fires
     self.creatureFires = newCreatureFires
 
+    -- remove the score after two seconds
+    local newScores = {}
+
+    for k, score in pairs(self.scoreObjects) do
+        score:update(dt)
+
+        if not score.remove then
+            table.insert(newScores, score)
+        end
+    end
+
+    self.scoreObjects = newScores
+
     self.background:update(dt)
-    print(self.player.health)
 end
 
 function Level:render()
@@ -335,12 +357,15 @@ function Level:render()
     for k, object in pairs(self.objects) do
         object:render()
     end
+
+    for k, score in pairs(self.scoreObjects) do
+        score:render()
+    end
 end
 
 function Level:generateHeart(entity) 
     -- chance to generate a heart
     if math.random(3) == 1 and entity.prevHealth > 0 then
-        print('heartSpawn')
         local heart = GameObject{
             animations = GAME_OBJECT_DEFS['heart'].states,
             moveSpeed = GAME_OBJECT_DEFS['heart'].moveSpeed,

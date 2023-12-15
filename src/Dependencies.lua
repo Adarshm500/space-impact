@@ -24,9 +24,9 @@ require 'src/StateMachine'
 require 'src/Util'
 require 'src/GameObject'
 require 'src/game_objects'
-require 'src/Hitbox'
 require 'src/Creature'
 require 'src/CreatureFire'
+require 'src/Score'
 
 -- world
 require 'src/world/Level'
@@ -93,4 +93,6 @@ gFonts = {
     ['large'] = love.graphics.newFont('fonts/font.ttf', 32),
     -- ['title'] = love.graphics.newFont('fonts/ArcadeAlternate.ttf', 32)
     ['title'] = love.graphics.newFont('fonts/SpaceFont.otf', 32),
+    ['score'] = love.graphics.newFont('fonts/fipps.otf'),
+    ['points'] = love.graphics.newFont('fonts/Debug.otf')
 }
