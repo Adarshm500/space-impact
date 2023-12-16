@@ -10,16 +10,16 @@ function PlayerMoveState:init(player)
 end
 
 function PlayerMoveState:update(dt)
-    if love.keyboard.isDown('a') then
+    if love.keyboard.isDown('a') or love.keyboard.isDown('left') then
         self.entity:changeAnimation('move-left')
         self.entity.dx = -self.entity.moveSpeed
-    elseif love.keyboard.isDown('d') then
+    elseif love.keyboard.isDown('d') or love.keyboard.isDown('right') then
         self.entity:changeAnimation('move-right')
         self.entity.dx = self.entity.moveSpeed
-    elseif love.keyboard.isDown('w') then
+    elseif love.keyboard.isDown('w') or love.keyboard.isDown('up') then
         self.entity:changeAnimation('turn-up')
         self.entity.dy = -self.entity.moveSpeed
-    elseif love.keyboard.isDown('s') then
+    elseif love.keyboard.isDown('s') or love.keyboard.isDown('down') then
         self.entity:changeAnimation('turn-down')
         self.entity.dy = self.entity.moveSpeed
     else
@@ -43,6 +43,10 @@ function PlayerMoveState:update(dt)
     
     else
         self.entity.x = math.min(VIRTUAL_WIDTH - self.entity.width + self.entity.offsetX, self.entity.x + self.entity.dx * dt)
+    end
+
+    if self.entity.remove then
+        self.entity:changeAnimation('destroy')
     end
 end
 

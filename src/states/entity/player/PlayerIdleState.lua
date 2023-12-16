@@ -8,7 +8,8 @@ end
 
 function PlayerIdleState:update(dt)    
     if love.keyboard.isDown('a') or love.keyboard.isDown('d') or
-        love.keyboard.isDown('w') or love.keyboard.isDown('s') then
+        love.keyboard.isDown('w') or love.keyboard.isDown('s') or love.keyboard.isDown('left') or love.keyboard.isDown('right') or
+        love.keyboard.isDown('up') or love.keyboard.isDown('down') then
         self.entity:changeState('move')
     end
 end

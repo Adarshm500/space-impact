@@ -2,6 +2,8 @@ Player = Class{__includes = Entity}
 
 function Player:init(def)
     Entity.init(self, def)
+    self.deathTime = 0
+    self.remove = false
 end
 
 function Player:update(dt)

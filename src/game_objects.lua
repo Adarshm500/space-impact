@@ -26,5 +26,17 @@ GAME_OBJECT_DEFS = {
                 texture = 'hearts'
             }
         }
+    },
+    ['boss-explosion'] = {
+        type = 'explosion',
+        moveSpeed = 0,
+        defaultState = 'explode',
+        states = {
+            ['explode'] = {
+                frames = {1, 2, 3, 4, 5, 6, 7, 8, 9},
+                interval = 0.2,
+                texture = 'boss-explosion'
+            }
+        }
     }
 }

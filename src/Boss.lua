@@ -2,13 +2,14 @@ Boss = Class{__includes = Entity}
 
 function Boss:init(def)
     Entity.init(self, def)
-    self.bombTimer = 0
+    self.explosionTimer = 0
     self.chargeTimer = 0
     self.fireTimer = 0
 end
 
 function Boss:update(dt)
     self.fireTimer = self.fireTimer + dt
+    self.explosionTimer = self.explosionTimer + dt
     Entity.update(self, dt)
 end
 

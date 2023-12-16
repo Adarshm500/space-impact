@@ -37,6 +37,13 @@ function Level:init(player)
     -- timer to gradually increase the difficulty with time
     self.timer = 0
     self.bossPresent = false
+
+    -- variable for boss explosion
+    self.explosionX = 0
+    self.explosionY = 0
+    self.explosionWarning = false
+    self.warningBeginTimer = 0
+    self.radius = 0
 end
 
 function Level:generateEntities()
@@ -74,10 +81,11 @@ function Level:generateAsteroids()
             if self.player:collides(asteroid) then
                 asteroid.health = 0
                 if not self.player.invulnerable then
-                    self.player:damage(5)
+                    self.player:damage(2)
                     self.player:goInvulnerable(2)
                 end
             else
+                -- collision with space-ship fire
                 asteroid:damage(1)
             end
             if asteroid.health == 0 then
@@ -148,7 +156,6 @@ function Level:update(dt)
         boss:changeState('move')
         self.bossPresent = true
     end
-
         
     -- randomly init asteroids at random location and random speed
     local maxDifficultyLevel = 4
@@ -178,8 +185,16 @@ function Level:update(dt)
     self.player:update(dt)
 
     -- if player is dead then game-over
-    if self.player.health < 1 then
-        gStateMachine:change('game-over')  
+    if self.player.health < 1 and not self.player.remove then
+        -- after 2 sec change to gameover state
+        self.player.remove = true
+        self.player.deathTime = self.timer
+        -- explosion sound
+    end
+    
+    if self.timer - self.player.deathTime > 3 and self.player.remove then
+        self.player.remove = false
+        gStateMachine:change('game-over')
     end
 
     ----- update the spaceship fires ------
@@ -242,6 +257,18 @@ function Level:update(dt)
         elseif not entity.dead then
             entity:processAI({level = self}, dt)
             entity:update(dt)
+            ---- if it is boss then do the explosion and charge by timer
+            if entity.explosionTimer and entity.explosionTimer > 10 then
+                print('explode')
+                self.explosionX = self.player.x + self.player.width / 2
+                self.explosionY = self.player.y + self.player.height / 2
+                -- first make the area reddish
+                self.explosionWarning = true
+                self.warningBeginTimer = self.timer
+                
+                entity.explosionTimer = 0
+            end
+
             if entity.fireTimer > 0.25 and math.abs(self.player.y - entity.y) < 64 then
                 local fire = CreatureFire(entity.x, entity.y + entity.height / 2)
                 table.insert(self.creatureFires, fire)
@@ -272,6 +299,13 @@ function Level:update(dt)
 
     for k, object in pairs(self.objects) do
         object:update(dt)
+
+        -- if there is explosion then run it only once
+        if object.type == 'explosion' then
+            if object.currentAnimation.timesPlayed > 0 then
+                object.remove = true
+            end
+        end
         -- check collision with player
         -- if asteroid then only collides when in move state
         if self.player:collides(object) then
@@ -394,6 +428,56 @@ function Level:render()
     for k, score in pairs(self.scoreObjects) do
         score:render()
     end
+    
+    if self.explosionWarning then
+        print('explosion-begin-warn')
+        love.graphics.setColor(214/255, 5/255, 14/255, 1)
+        if self.radius < 10 then
+            love.graphics.circle('fill', self.explosionX, self.explosionY, self.radius)
+        else
+            love.graphics.circle('line', self.explosionX, self.explosionY, self.radius)
+        end
+
+        -- keep incrementing the size of the circle until 256px
+        if self.radius < 100 then
+            self.radius = math.floor(self.radius + (self.timer - self.warningBeginTimer) * 3)
+        elseif self.radius < 128 then
+            self.radius = math.floor(self.radius + (self.timer - self.warningBeginTimer) * 1)
+        else
+            love.graphics.setColor(1, 1, 1, 1)
+            self.explosionWarning = false
+            self:generateExplosion(self.explosionX - self.player.width - 26, self.explosionY - self.player.height - 26)
+        end
+    end
+end
+
+function Level:generateExplosion(x, y)
+    print('explosion-inPlay')
+    local bossExplosion = GameObject {
+        animations = GAME_OBJECT_DEFS['boss-explosion'].states,
+        moveSpeed = 0,
+        type = GAME_OBJECT_DEFS['boss-explosion'].type,
+
+        x = x,
+        y = y,
+
+        width = 256,
+        height = 256,
+
+        health = 50
+    }
+    bossExplosion:changeState('explode')
+
+    bossExplosion.onCollide = function()
+        self.player:damage(2)
+        self.player:goInvulnerable(4)
+        if bossExplosion.health == 0 then
+            asteroid.remove = true
+        end
+    end
+
+    table.insert(self.objects, bossExplosion)
+    self.radius = 0
 end
 
 function Level:generateHeart(entity) 

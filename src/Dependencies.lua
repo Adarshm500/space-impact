@@ -68,6 +68,7 @@ gTextures = {
     ['spaceship-turn-down'] = love.graphics.newImage('graphics/Fighter/Turn_down.png'),
     ['spaceship-move-left'] =  love.graphics.newImage('graphics/Fighter/Move.png'),
     ['spaceship-move-right'] =  love.graphics.newImage('graphics/Fighter/Boost.png'),
+    ['spaceship-destroy'] =  love.graphics.newImage('graphics/Fighter/Destroyed.png'),
     ['fire-1'] = love.graphics.newImage('graphics/Fighter/Charge_1.png'),
     ['fire-2'] = love.graphics.newImage('graphics/Fighter/Charge_2.png'),
     ['asteroid'] = love.graphics.newImage('graphics/asteroid/asteroid.png'),
@@ -75,7 +76,8 @@ gTextures = {
     ['hearts'] = love.graphics.newImage('graphics/hearts.png'),
     ['creatures'] = love.graphics.newImage('graphics/Creatures.png'),
     ['creature-fire'] = love.graphics.newImage('graphics/creature_fire.png'),
-    ['boss'] = love.graphics.newImage('graphics/Boss.png')
+    ['boss'] = love.graphics.newImage('graphics/Boss.png'),
+    ['boss-explosion'] = love.graphics.newImage('graphics/boss_explosion.png'),
 }
 
 gFrames = {
@@ -84,6 +86,7 @@ gFrames = {
     ['spaceship-turn-down'] = GenerateQuads(gTextures['spaceship-turn-down'], 192, 192),
     ['spaceship-move-left'] = GenerateQuads(gTextures['spaceship-move-left'], 192, 192),
     ['spaceship-move-right'] = GenerateQuads(gTextures['spaceship-move-right'], 192, 192),
+    ['spaceship-destroy'] = GenerateQuads(gTextures['spaceship-destroy'], 192, 192),
     ['fire-1'] = GenerateQuads(gTextures['fire-1'], 28, 28),
     ['fire-2'] = GenerateQuads(gTextures['fire-2'], 12, 12),
     ['asteroid'] = GenerateQuads(gTextures['asteroid'], 96, 96),
@@ -91,7 +94,9 @@ gFrames = {
     ['hearts'] = GenerateQuads(gTextures['hearts'], 16, 16),
     ['creatures'] = GenerateQuads(gTextures['creatures'], 48, 48),
     ['creature-fire'] = GenerateQuads(gTextures['creature-fire'], 28, 28),
-    ['boss'] = GenerateQuads(gTextures['boss'], 256, 256)
+    ['boss'] = GenerateQuads(gTextures['boss'], 256, 256),
+    ['boss-explosion'] = GenerateQuads(gTextures['boss-explosion'], 256, 256),
+
 }
 gFonts = {
     ['small'] = love.graphics.newFont('fonts/font.ttf', 8),
