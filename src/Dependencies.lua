@@ -27,6 +27,7 @@ require 'src/game_objects'
 require 'src/Creature'
 require 'src/CreatureFire'
 require 'src/Score'
+require 'src/Boss'
 
 -- world
 require 'src/world/Level'
@@ -42,6 +43,9 @@ require 'src/states/entity/player/PlayerMoveState'
 
 require 'src/states/entity/creature/CreatureIdleState'
 require 'src/states/entity/creature/CreatureMoveState'
+
+require 'src/states/entity/boss/BossIdleState'
+require 'src/states/entity/boss/BossMoveState'
 
 -- game states
 require 'src/states/game/PlayState'
@@ -70,7 +74,8 @@ gTextures = {
     ['explosion'] = love.graphics.newImage('graphics/asteroid/explosion.png'),
     ['hearts'] = love.graphics.newImage('graphics/hearts.png'),
     ['creatures'] = love.graphics.newImage('graphics/Creatures.png'),
-    ['creature-fire'] = love.graphics.newImage('graphics/creature_fire.png')
+    ['creature-fire'] = love.graphics.newImage('graphics/creature_fire.png'),
+    ['boss'] = love.graphics.newImage('graphics/Boss.png')
 }
 
 gFrames = {
@@ -86,6 +91,7 @@ gFrames = {
     ['hearts'] = GenerateQuads(gTextures['hearts'], 16, 16),
     ['creatures'] = GenerateQuads(gTextures['creatures'], 48, 48),
     ['creature-fire'] = GenerateQuads(gTextures['creature-fire'], 28, 28),
+    ['boss'] = GenerateQuads(gTextures['boss'], 256, 256)
 }
 gFonts = {
     ['small'] = love.graphics.newFont('fonts/font.ttf', 8),

@@ -2,7 +2,7 @@ CreatureFire = Class{}
 
 function CreatureFire:init(creatureX, creatureY)
     self.x = creatureX
-    self.y = creatureY + 20
+    self.y = creatureY
     self.width = 28
     self.height = 28
     self.dx = -150

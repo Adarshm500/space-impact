@@ -36,6 +36,7 @@ function Level:init(player)
 
     -- timer to gradually increase the difficulty with time
     self.timer = 0
+    self.bossPresent = false
 end
 
 function Level:generateEntities()
@@ -120,9 +121,35 @@ function Level:generateCreatures()
 end
 
 function Level:update(dt)
+    ---- update the fireTimer and timer
     self.fireTimer = self.fireTimer + dt
     self.timer = self.timer + dt
+
+    if self.score > 100 and not self.bossPresent then
+        local boss = Boss {
+            animations = ENTITY_DEFS['boss'].animations,
+            moveSpeed = 50,
+
+            x = VIRTUAL_WIDTH - 256,
+            y = math.random(0, VIRTUAL_HEIGHT - 256),
+
+            width = 256,
+            height = 256,
     
+            health = 10000,
+        }
+
+        table.insert(self.entities, boss)
+
+        boss.stateMachine = StateMachine{
+            ['move'] = function() return BossMoveState(boss) end,
+            ['idle'] = function() return BossIdleState(boss) end
+        }
+        boss:changeState('move')
+        self.bossPresent = true
+    end
+
+        
     -- randomly init asteroids at random location and random speed
     local maxDifficultyLevel = 4
     -- increase difficulty after 15 seconds
@@ -133,24 +160,29 @@ function Level:update(dt)
     -- score points after alien kill
     -- change the scorepoints according to the level
     local scorePoints = 100 * difficultyLevel
+
+    if not self.bossPresent then
+        for i = 1, difficultyLevel do
+            local enemySpawnProbability = (i + 9) / 2200
+            if math.random(1 / enemySpawnProbability) == 1 then
+                self:generateAsteroids()
+            end
     
-    for i = 1, difficultyLevel do
-        local enemySpawnProbability = (i + 9) / 2200
-        if math.random(1 / enemySpawnProbability) == 1 then
-            self:generateAsteroids()
+            if math.random(1 / enemySpawnProbability) == 1 then
+                self:generateCreatures()
+            end
         end
+    end    
 
-        if math.random(1 / enemySpawnProbability) == 1 then
-            self:generateCreatures()
-        end
-    end
-
+    ---- update the player -----
     self.player:update(dt)
 
+    -- if player is dead then game-over
     if self.player.health < 1 then
         gStateMachine:change('game-over')  
     end
 
+    ----- update the spaceship fires ------
     -- table to remove the non-active fires
     local newFires = {}
     -- update the lasers
@@ -195,6 +227,7 @@ function Level:update(dt)
         end
     end    
 
+    ----- update the entities ---------
     -- table to keep updating the object and remove the ones needed to remove
     local newEntities = {}
 
@@ -210,7 +243,7 @@ function Level:update(dt)
             entity:processAI({level = self}, dt)
             entity:update(dt)
             if entity.fireTimer > 0.25 and math.abs(self.player.y - entity.y) < 64 then
-                local fire = CreatureFire(entity.x, entity.y)
+                local fire = CreatureFire(entity.x, entity.y + entity.height / 2)
                 table.insert(self.creatureFires, fire)
                 entity.fireTimer = 0
             end

@@ -119,4 +119,12 @@ ENTITY_DEFS = {
             },
         }
     },
+    ['boss'] = {
+        animations = {
+            ['idle'] = {
+                frames = {1},
+                texture = 'boss'
+            },
+        }
+    }
 }
