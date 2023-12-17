@@ -1,5 +1,6 @@
 ENTITY_DEFS = {
     ['player'] = {
+        type = 'player',
         moveSpeed = SPACESHIP_SPEED,
         animations = {
             ['move-left'] = {
@@ -28,13 +29,14 @@ ENTITY_DEFS = {
                 texture = 'spaceship-idle'
             },
             ['destroy'] = {
-                frames = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12},
+                frames = {5, 6, 7, 8, 9, 10, 11, 12},
                 interval = 0.15,
                 texture = 'spaceship-destroy'
             }
         }
     },
     ['creature_1'] = {
+        type = 'creature',
         animations = {
             ['idle'] = {
                 frames = {1, 2},
@@ -44,6 +46,7 @@ ENTITY_DEFS = {
         }
     },
     ['creature_2'] = {
+        type = 'creature',
         animations = {
             ['idle'] = {
                 frames = {3, 4},
@@ -53,6 +56,7 @@ ENTITY_DEFS = {
         }
     },    
     ['creature_3'] = {
+        type = 'creature',
         animations = {
             ['idle'] = {
                 frames = {7, 8},
@@ -62,6 +66,7 @@ ENTITY_DEFS = {
         }
     },    
     ['creature_4'] = {
+        type = 'creature',
         animations = {
             ['idle'] = {
                 frames = {11, 12},
@@ -71,6 +76,7 @@ ENTITY_DEFS = {
         }
     },    
     ['creature_5'] = {
+        type = 'creature',
         animations = {
             ['idle'] = {
                 frames = {19, 20},
@@ -80,6 +86,7 @@ ENTITY_DEFS = {
         }
     },    
     ['creature_6'] = {
+        type = 'creature',
         animations = {
             ['idle'] = {
                 frames = {23, 24},
@@ -89,6 +96,7 @@ ENTITY_DEFS = {
         }
     },    
     ['creature_7'] = {
+        type = 'creature',
         animations = {
             ['idle'] = {
                 frames = {25, 26},
@@ -98,6 +106,7 @@ ENTITY_DEFS = {
         }
     },    
     ['creature_8'] = {
+        type = 'creature',
         animations = {
             ['idle'] = {
                 frames = {33, 34},
@@ -107,6 +116,7 @@ ENTITY_DEFS = {
         }
     },    
     ['creature_9'] = {
+        type = 'creature',
         animations = {
             ['idle'] = {
                 frames = {51, 52},
@@ -116,6 +126,7 @@ ENTITY_DEFS = {
         }
     },    
     ['creature_10'] = {
+        type = 'creature',
         animations = {
             ['idle'] = {
                 frames = {61, 62},
@@ -125,6 +136,7 @@ ENTITY_DEFS = {
         }
     },
     ['boss'] = {
+        type = 'boss',
         animations = {
             ['idle'] = {
                 frames = {1},

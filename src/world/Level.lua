@@ -44,6 +44,15 @@ function Level:init(player)
     self.explosionWarning = false
     self.warningBeginTimer = 0
     self.radius = 0
+    -- has the circleOrigin been set?
+    self.circleOriginSet = false
+    self.circleX = 0
+    self.circleY = 0
+    self.explosionAim = false
+
+    -- division of distance between circleX and player
+    self.distanceDivisionX = 10
+    self.distanceDivisionY = 10
 end
 
 function Level:generateEntities()
@@ -106,6 +115,7 @@ function Level:generateCreatures()
     local creature = Creature {
         animations = ENTITY_DEFS['creature_'..creature_type].animations,
         moveSpeed = math.random(50, 80),
+        type = ENTITY_DEFS['creature_'..creature_type].type,
         
         x = VIRTUAL_WIDTH + 48,
         y = math.random(0, VIRTUAL_HEIGHT - 48),
@@ -137,6 +147,7 @@ function Level:update(dt)
         local boss = Boss {
             animations = ENTITY_DEFS['boss'].animations,
             moveSpeed = 50,
+            type = ENTITY_DEFS['boss'].type,
 
             x = VIRTUAL_WIDTH - 256,
             y = math.random(0, VIRTUAL_HEIGHT - 256),
@@ -260,12 +271,9 @@ function Level:update(dt)
             ---- if it is boss then do the explosion and charge by timer
             if entity.explosionTimer and entity.explosionTimer > 10 then
                 print('explode')
-                self.explosionX = self.player.x + self.player.width / 2
-                self.explosionY = self.player.y + self.player.height / 2
                 -- first make the area reddish
-                self.explosionWarning = true
+                self.explosionAim = true
                 self.warningBeginTimer = self.timer
-                
                 entity.explosionTimer = 0
             end
 
@@ -302,7 +310,9 @@ function Level:update(dt)
 
         -- if there is explosion then run it only once
         if object.type == 'explosion' then
-            if object.currentAnimation.timesPlayed > 0 then
+            if object.state == 'explode' and object.currentAnimation.timesPlayed > 0 then
+                object:changeState('smoke')
+            elseif object.state == 'smoke' and object.currentAnimation.timesPlayed > 0 then
                 object.remove = true
             end
         end
@@ -428,26 +438,103 @@ function Level:render()
     for k, score in pairs(self.scoreObjects) do
         score:render()
     end
+
+    if self.explosionAim and not self.explosionWarning then
+        self:explosionAiming()
+    end
     
     if self.explosionWarning then
-        print('explosion-begin-warn')
-        love.graphics.setColor(214/255, 5/255, 14/255, 1)
-        if self.radius < 10 then
-            love.graphics.circle('fill', self.explosionX, self.explosionY, self.radius)
-        else
-            love.graphics.circle('line', self.explosionX, self.explosionY, self.radius)
-        end
+        self:explosionWarn()
+    end
+end
 
-        -- keep incrementing the size of the circle until 256px
-        if self.radius < 100 then
-            self.radius = math.floor(self.radius + (self.timer - self.warningBeginTimer) * 3)
-        elseif self.radius < 128 then
-            self.radius = math.floor(self.radius + (self.timer - self.warningBeginTimer) * 1)
-        else
-            love.graphics.setColor(1, 1, 1, 1)
-            self.explosionWarning = false
-            self:generateExplosion(self.explosionX - self.player.width - 26, self.explosionY - self.player.height - 26)
+function Level:explosionAiming()
+    love.graphics.setColor(214/255, 5/255, 14/255, 1)
+    -- loop over the entities to find boss
+    for k, entity in pairs(self.entities) do
+        if entity.type == 'boss' then
+            -- set the circleX and circleY only once
+            if not self.circleOriginSet then
+                self.circleX = entity.x
+                self.circleY = entity.y + entity.height / 2
+                self.circleOriginSet = true
+            end
         end
+    end
+
+    -- player location
+    local playerX = self.player.x + self.player.width / 2
+    local playerY = self.player.y + self.player.height / 2
+    
+    -- use the distance formula to get the distance from circle to player
+    local distanceCircleToPlayerX
+    local distanceCircleToPlayerY
+    local speedX
+    local speedY
+
+    
+    distanceCircleToPlayerX = self.circleX - playerX
+    distanceCircleToPlayerY = self.circleY - playerY
+    print('distanceCircleToPlayerX:  '..distanceCircleToPlayerX)
+    print('distanceCircleToPlayerY:  '..distanceCircleToPlayerY)
+    -- if not self.circleSpeedSet then
+    speedX = distanceCircleToPlayerX / self.distanceDivisionX
+    speedY = distanceCircleToPlayerY / self.distanceDivisionY
+    -- if the abs(speed) is greater than the distance itself then just sutract the difference or just stop at all
+        -- to code
+    if math.abs(speedX) < 1 then
+        -- self.distanceDivisionX = self.distanceDivisionX / 2
+        self.distanceDivisionX = 10
+        
+    end
+    if math.abs(speedY) < 1 then
+        -- self.distanceDivisionY = self.distanceDivisionY / 2
+        self.distanceDivisionY = 10
+    end
+    -- self.circleSpeedSet = true
+    print('speedX:  '..speedX)
+    print('speedY:  '..speedY)
+    -- end
+    
+    self.circleX = math.floor(self.circleX - speedX)
+    self.circleY = math.floor(self.circleY - speedY)
+    love.graphics.circle('fill', self.circleX, self.circleY, 10)
+    
+    local distanceCircleToPlayer = math.sqrt(distanceCircleToPlayerX ^ 2 + distanceCircleToPlayerY ^ 2)
+    print('distanceCircleToPlayer:  '..distanceCircleToPlayer)
+    
+    if distanceCircleToPlayer < 10 then
+        -- reset all the values
+        self.distanceDivisionX = 10
+        self.distanceDivisionY = 10
+        self.circleOriginSet = false
+        self.explosionAim = false
+        self.warningBeginTimer = self.timer
+        self.explosionX = playerX
+        self.explosionY = playerY
+        self.explosionWarning = true
+    end
+end
+
+function  Level:explosionWarn()
+    -- implement dot from the boss to space-ship
+    print('explosion-begin-warn')
+
+    if self.radius < 10 then
+        love.graphics.circle('fill', self.explosionX, self.explosionY, self.radius)
+    else
+        love.graphics.circle('line', self.explosionX, self.explosionY, self.radius)
+    end
+
+    -- keep incrementing the size of the circle until 256px
+    if self.radius < 110 then
+        self.radius = math.floor(self.radius + (self.timer - self.warningBeginTimer) * 7)
+    elseif self.radius < 128 then
+        self.radius = math.floor(self.radius + (self.timer - self.warningBeginTimer) * 3)
+    else
+        love.graphics.setColor(1, 1, 1, 1)
+        self.explosionWarning = false
+        self:generateExplosion(self.explosionX - self.player.width - 26, self.explosionY - self.player.height - 26)
     end
 end
 
@@ -469,8 +556,11 @@ function Level:generateExplosion(x, y)
     bossExplosion:changeState('explode')
 
     bossExplosion.onCollide = function()
-        self.player:damage(2)
-        self.player:goInvulnerable(4)
+        if bossExplosion.state == 'explode' then
+            self.player:damage(2)
+            self.player:goInvulnerable(4)
+        end
+    
         if bossExplosion.health == 0 then
             asteroid.remove = true
         end

@@ -16,7 +16,8 @@ GAME_OBJECT_DEFS = {
         },
 
     },
-    ['heart'] = {
+    [
+    'heart'] = {
         type = 'heart',
         moveSpeed = OBJECT_MOVE_SPEED,
         defaultState = 'move',
@@ -33,8 +34,13 @@ GAME_OBJECT_DEFS = {
         defaultState = 'explode',
         states = {
             ['explode'] = {
-                frames = {1, 2, 3, 4, 5, 6, 7, 8, 9},
-                interval = 0.2,
+                frames = {1, 2, 3, 4, 5},
+                interval = 0.15,
+                texture = 'boss-explosion'
+            },
+            ['smoke'] = {
+                frames = {6, 7, 8, 9, 10},
+                interval = 0.15,
                 texture = 'boss-explosion'
             }
         }

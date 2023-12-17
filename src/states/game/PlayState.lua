@@ -4,6 +4,7 @@ function PlayState:init()
     self.player = Player {
         animations = ENTITY_DEFS['player'].animations,
         moveSpeed = ENTITY_DEFS['player'].moveSpeed,
+        type = ENTITY_DEFS['player'].type,
         
         x = 0,
         y = VIRTUAL_HEIGHT / 2 - 48,

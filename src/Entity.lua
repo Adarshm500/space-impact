@@ -3,6 +3,8 @@ Entity = Class{}
 function Entity:init(def)
     self.animations = self:createAnimations(def.animations)
 
+    self.type = def.type
+
     -- dimensions
     self.x = def.x
     self.y = def.y
