@@ -10,24 +10,29 @@ function PlayerMoveState:init(player)
 end
 
 function PlayerMoveState:update(dt)
-    if love.keyboard.isDown('a') or love.keyboard.isDown('left') then
-        self.entity:changeAnimation('move-left')
-        self.entity.dx = -self.entity.moveSpeed
-    elseif love.keyboard.isDown('d') or love.keyboard.isDown('right') then
-        self.entity:changeAnimation('move-right')
-        self.entity.dx = self.entity.moveSpeed
-    elseif love.keyboard.isDown('w') or love.keyboard.isDown('up') then
-        self.entity:changeAnimation('turn-up')
-        self.entity.dy = -self.entity.moveSpeed
-    elseif love.keyboard.isDown('s') or love.keyboard.isDown('down') then
-        self.entity:changeAnimation('turn-down')
-        self.entity.dy = self.entity.moveSpeed
+    if not self.entity.remove then
+        if love.keyboard.isDown('a') or love.keyboard.isDown('left') then
+            self.entity:changeAnimation('move-left')
+            self.entity.dx = -self.entity.moveSpeed
+        elseif love.keyboard.isDown('d') or love.keyboard.isDown('right') then
+            self.entity:changeAnimation('move-right')
+            self.entity.dx = self.entity.moveSpeed
+        elseif love.keyboard.isDown('w') or love.keyboard.isDown('up') then
+            self.entity:changeAnimation('turn-up')
+            self.entity.dy = -self.entity.moveSpeed
+        elseif love.keyboard.isDown('s') or love.keyboard.isDown('down') then
+            self.entity:changeAnimation('turn-down')
+            self.entity.dy = self.entity.moveSpeed
+        else
+            self.entity:changeState('idle')
+            self.entity.dy = 0
+            self.entity.dx = 0
+        end 
     else
-        self.entity:changeState('idle')
         self.entity.dy = 0
         self.entity.dx = 0
     end
-    
+
     -- perform base collision detection against walls
     EntityMoveState.update(self, dt)
     
@@ -45,9 +50,9 @@ function PlayerMoveState:update(dt)
         self.entity.x = math.min(VIRTUAL_WIDTH - self.entity.width + self.entity.offsetX, self.entity.x + self.entity.dx * dt)
     end
 
-    if self.entity.remove then
-        self.entity:changeAnimation('destroy')
-    end
+    -- if self.entity.remove then
+    --     self.entity:changeAnimation('destroy')
+    -- end
 end
 
 function PlayerMoveState:render()

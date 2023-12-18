@@ -54,8 +54,12 @@ require 'src/states/game/GameOverState'
 gSounds = {
     ['shoot'] = love.audio.newSource('sounds/shoot4.wav', 'static'),
     ['explosion'] = love.audio.newSource('sounds/explosion.wav', 'static'),
+    ['boss_explosion'] = love.audio.newSource('sounds/explosion.wav', 'static'),
+    ['bomb'] = love.audio.newSource('sounds/bomb.wav', 'static'),
+    ['dead'] = love.audio.newSource('sounds/dead.wav', 'static'),
     ['music'] = love.audio.newSource('sounds/music.mp3', 'static'),
     ['intro-music'] = love.audio.newSource('sounds/menu.wav', 'static'),
+    ['battle'] = love.audio.newSource('sounds/battle-music.mp3', 'static'),
 }
 
 gTextures = {
@@ -78,6 +82,7 @@ gTextures = {
     ['creature-fire'] = love.graphics.newImage('graphics/creature_fire.png'),
     ['boss'] = love.graphics.newImage('graphics/Boss.png'),
     ['boss-explosion'] = love.graphics.newImage('graphics/boss_explosion.png'),
+    ['bomb'] = love.graphics.newImage('graphics/bomb.png'),
 }
 
 gFrames = {
@@ -95,8 +100,8 @@ gFrames = {
     ['creatures'] = GenerateQuads(gTextures['creatures'], 48, 48),
     ['creature-fire'] = GenerateQuads(gTextures['creature-fire'], 28, 28),
     ['boss'] = GenerateQuads(gTextures['boss'], 256, 256),
-    ['boss-explosion'] = GenerateQuads(gTextures['boss-explosion'], 256, 256),
-
+    ['boss-explosion'] = GenerateQuads(gTextures['boss-explosion'], 184, 184),
+    ['bomb'] = GenerateQuads(gTextures['bomb'], 32, 32),
 }
 gFonts = {
     ['small'] = love.graphics.newFont('fonts/font.ttf', 8),

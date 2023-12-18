@@ -46,11 +46,11 @@ function Level:init(player)
     self.radius = 0
     -- has the circleOrigin been set?
     self.circleOriginSet = false
-    self.circleX = 0
-    self.circleY = 0
+    self.bombX = 0
+    self.bombY = 0
     self.explosionAim = false
 
-    -- division of distance between circleX and player
+    -- division of distance between self.bombX and player
     self.distanceDivisionX = 10
     self.distanceDivisionY = 10
 end
@@ -144,6 +144,9 @@ function Level:update(dt)
     self.timer = self.timer + dt
 
     if self.score > 100 and not self.bossPresent then
+        gSounds['music']:stop()
+        gSounds['battle']:setLooping(true)
+        gSounds['battle']:play()
         local boss = Boss {
             animations = ENTITY_DEFS['boss'].animations,
             moveSpeed = 50,
@@ -198,13 +201,14 @@ function Level:update(dt)
     -- if player is dead then game-over
     if self.player.health < 1 and not self.player.remove then
         -- after 2 sec change to gameover state
+        gSounds['dead']:play()
         self.player.remove = true
+        self.player:changeAnimation('destroy')
         self.player.deathTime = self.timer
         -- explosion sound
     end
     
     if self.timer - self.player.deathTime > 3 and self.player.remove then
-        self.player.remove = false
         gStateMachine:change('game-over')
     end
 
@@ -270,7 +274,6 @@ function Level:update(dt)
             entity:update(dt)
             ---- if it is boss then do the explosion and charge by timer
             if entity.explosionTimer and entity.explosionTimer > 10 then
-                print('explode')
                 -- first make the area reddish
                 self.explosionAim = true
                 self.warningBeginTimer = self.timer
@@ -449,14 +452,31 @@ function Level:render()
 end
 
 function Level:explosionAiming()
+    gSounds['bomb']:play()
     love.graphics.setColor(214/255, 5/255, 14/255, 1)
     -- loop over the entities to find boss
     for k, entity in pairs(self.entities) do
         if entity.type == 'boss' then
-            -- set the circleX and circleY only once
+            -- set the self.bombX and self.bombY only once
             if not self.circleOriginSet then
-                self.circleX = entity.x
-                self.circleY = entity.y + entity.height / 2
+                local bombX = entity.x
+                local bombY = entity.y + entity.height / 2
+                
+                self.bomb = GameObject {
+                    animations = GAME_OBJECT_DEFS['bomb'].states,
+                    moveSpeed = GAME_OBJECT_DEFS['bomb'].moveSpeed,
+                    type = GAME_OBJECT_DEFS['bomb'].type,
+
+                    x = bombX,
+                    y = bombY,
+
+                    width = 32,
+                    height = 32,
+
+                    health = 50
+                }
+                self.bomb:changeState('idle')
+                table.insert(self.objects, self.bomb)
                 self.circleOriginSet = true
             end
         end
@@ -473,8 +493,8 @@ function Level:explosionAiming()
     local speedY
 
     
-    distanceCircleToPlayerX = self.circleX - playerX
-    distanceCircleToPlayerY = self.circleY - playerY
+    distanceCircleToPlayerX = self.bomb.x - playerX
+    distanceCircleToPlayerY = self.bomb.y - playerY
     print('distanceCircleToPlayerX:  '..distanceCircleToPlayerX)
     print('distanceCircleToPlayerY:  '..distanceCircleToPlayerY)
     -- if not self.circleSpeedSet then
@@ -496,9 +516,9 @@ function Level:explosionAiming()
     print('speedY:  '..speedY)
     -- end
     
-    self.circleX = math.floor(self.circleX - speedX)
-    self.circleY = math.floor(self.circleY - speedY)
-    love.graphics.circle('fill', self.circleX, self.circleY, 10)
+    self.bomb.x = math.floor(self.bomb.x - speedX)
+    self.bomb.y = math.floor(self.bomb.y - speedY)
+    -- love.graphics.circle('fill', self.bombX, self.bombY, 10)
     
     local distanceCircleToPlayer = math.sqrt(distanceCircleToPlayerX ^ 2 + distanceCircleToPlayerY ^ 2)
     print('distanceCircleToPlayer:  '..distanceCircleToPlayer)
@@ -513,13 +533,12 @@ function Level:explosionAiming()
         self.explosionX = playerX
         self.explosionY = playerY
         self.explosionWarning = true
+        self.bomb.remove = true
     end
 end
 
 function  Level:explosionWarn()
     -- implement dot from the boss to space-ship
-    print('explosion-begin-warn')
-
     if self.radius < 10 then
         love.graphics.circle('fill', self.explosionX, self.explosionY, self.radius)
     else
@@ -527,19 +546,18 @@ function  Level:explosionWarn()
     end
 
     -- keep incrementing the size of the circle until 256px
-    if self.radius < 110 then
+    if self.radius < 80 then
         self.radius = math.floor(self.radius + (self.timer - self.warningBeginTimer) * 7)
-    elseif self.radius < 128 then
+    elseif self.radius < 100 then
         self.radius = math.floor(self.radius + (self.timer - self.warningBeginTimer) * 3)
     else
         love.graphics.setColor(1, 1, 1, 1)
         self.explosionWarning = false
-        self:generateExplosion(self.explosionX - self.player.width - 26, self.explosionY - self.player.height - 26)
+        self:generateExplosion(self.explosionX - self.player.width, self.explosionY - self.player.height)
     end
 end
 
 function Level:generateExplosion(x, y)
-    print('explosion-inPlay')
     local bossExplosion = GameObject {
         animations = GAME_OBJECT_DEFS['boss-explosion'].states,
         moveSpeed = 0,
@@ -548,8 +566,8 @@ function Level:generateExplosion(x, y)
         x = x,
         y = y,
 
-        width = 256,
-        height = 256,
+        width = 184,
+        height = 184,
 
         health = 50
     }
@@ -558,13 +576,9 @@ function Level:generateExplosion(x, y)
     bossExplosion.onCollide = function()
         if bossExplosion.state == 'explode' then
             self.player:damage(2)
-            self.player:goInvulnerable(4)
-        end
-    
-        if bossExplosion.health == 0 then
-            asteroid.remove = true
         end
     end
+    gSounds['boss_explosion']:play()
 
     table.insert(self.objects, bossExplosion)
     self.radius = 0

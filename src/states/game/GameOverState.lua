@@ -1,6 +1,7 @@
 GameOverState = Class{__includes = BaseState}
 
 function GameOverState:init() 
+    gSounds['battle']:stop()
     gSounds['music']:stop()
 end
 

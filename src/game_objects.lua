@@ -39,9 +39,21 @@ GAME_OBJECT_DEFS = {
                 texture = 'boss-explosion'
             },
             ['smoke'] = {
-                frames = {6, 7, 8, 9, 10},
+                frames = {6, 7, 8, 9},
                 interval = 0.15,
                 texture = 'boss-explosion'
+            }
+        }
+    },
+    ['bomb'] = {
+        type = 'bomb', 
+        moveSpeed = 0,
+        defaultState = 'idle',
+        states = {
+            ['idle'] = {
+                frames = {6, 7, 8, 9, 10, 11, 12, 13, 14},
+                interval = 0.15,
+                texture = 'bomb'
             }
         }
     }
