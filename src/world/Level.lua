@@ -36,7 +36,6 @@ function Level:init(player)
 
     -- timer to gradually increase the difficulty with time
     self.timer = 0
-    self.bossPresent = false
 
     -- variable for boss explosion
     self.explosionX = 0
@@ -143,11 +142,11 @@ function Level:update(dt)
     self.fireTimer = self.fireTimer + dt
     self.timer = self.timer + dt
 
-    if self.score > 100 and not self.bossPresent then
+    if self.score > 100 and not self.boss then
         gSounds['music']:stop()
         gSounds['battle']:setLooping(true)
         gSounds['battle']:play()
-        local boss = Boss {
+        self.boss = Boss {
             animations = ENTITY_DEFS['boss'].animations,
             moveSpeed = 50,
             type = ENTITY_DEFS['boss'].type,
@@ -161,14 +160,19 @@ function Level:update(dt)
             health = 10000,
         }
 
-        table.insert(self.entities, boss)
+        table.insert(self.entities, self.boss)
 
-        boss.stateMachine = StateMachine{
-            ['move'] = function() return BossMoveState(boss) end,
-            ['idle'] = function() return BossIdleState(boss) end
+        self.boss.stateMachine = StateMachine{
+            ['move'] = function() return BossMoveState(self.boss) end,
+            ['idle'] = function() return BossIdleState(self.boss) end,
+            ['charge'] = function() return BossChargeState(self.boss) end
         }
-        boss:changeState('move')
-        self.bossPresent = true
+        self.boss:changeState('move')
+    end
+
+    -- if boss touches the player then player dies
+    if self.boss and self.boss:collides(self.player) then
+        self.player:damage(6)
     end
         
     -- randomly init asteroids at random location and random speed
@@ -182,7 +186,7 @@ function Level:update(dt)
     -- change the scorepoints according to the level
     local scorePoints = 100 * difficultyLevel
 
-    if not self.bossPresent then
+    if not self.boss then
         for i = 1, difficultyLevel do
             local enemySpawnProbability = (i + 9) / 2200
             if math.random(1 / enemySpawnProbability) == 1 then
@@ -272,13 +276,6 @@ function Level:update(dt)
         elseif not entity.dead then
             entity:processAI({level = self}, dt)
             entity:update(dt)
-            ---- if it is boss then do the explosion and charge by timer
-            if entity.explosionTimer and entity.explosionTimer > 10 then
-                -- first make the area reddish
-                self.explosionAim = true
-                self.warningBeginTimer = self.timer
-                entity.explosionTimer = 0
-            end
 
             if entity.fireTimer > 0.25 and math.abs(self.player.y - entity.y) < 64 then
                 local fire = CreatureFire(entity.x, entity.y + entity.height / 2)
@@ -288,7 +285,7 @@ function Level:update(dt)
         end
         entity.prevHealth = entity.health
 
-        if self.player:collides(entity) then
+        if self.player:collides(entity) and not entity == self.boss then
             entity.dead = true
             if not self.player.invulnerable then
                 self.player:damage(2)
@@ -304,6 +301,14 @@ function Level:update(dt)
 
     -- update the entities table to only include the non-dead entities
     self.entities = newEntities
+
+    ----- if it is boss then do the explosion and charge by timer
+    if self.boss and self.boss.explosionTimer > 10 then
+        -- first make the area reddish
+        self.explosionAim = true
+        self.warningBeginTimer = self.timer
+        self.boss.explosionTimer = 0
+    end
 
     -- table to keep updating the object and remove the ones needed to remove
     local newObjects = {}
@@ -455,30 +460,28 @@ function Level:explosionAiming()
     gSounds['bomb']:play()
     love.graphics.setColor(214/255, 5/255, 14/255, 1)
     -- loop over the entities to find boss
-    for k, entity in pairs(self.entities) do
-        if entity.type == 'boss' then
-            -- set the self.bombX and self.bombY only once
-            if not self.circleOriginSet then
-                local bombX = entity.x
-                local bombY = entity.y + entity.height / 2
-                
-                self.bomb = GameObject {
-                    animations = GAME_OBJECT_DEFS['bomb'].states,
-                    moveSpeed = GAME_OBJECT_DEFS['bomb'].moveSpeed,
-                    type = GAME_OBJECT_DEFS['bomb'].type,
+    if self.boss then
+        -- set the self.bombX and self.bombY only once
+        if not self.circleOriginSet then
+            local bombX = self.boss.x
+            local bombY = self.boss.y + self.boss.height / 2
+            
+            self.bomb = GameObject {
+                animations = GAME_OBJECT_DEFS['bomb'].states,
+                moveSpeed = GAME_OBJECT_DEFS['bomb'].moveSpeed,
+                type = GAME_OBJECT_DEFS['bomb'].type,
 
-                    x = bombX,
-                    y = bombY,
+                x = bombX,
+                y = bombY,
 
-                    width = 32,
-                    height = 32,
+                width = 32,
+                height = 32,
 
-                    health = 50
-                }
-                self.bomb:changeState('idle')
-                table.insert(self.objects, self.bomb)
-                self.circleOriginSet = true
-            end
+                health = 50
+            }
+            self.bomb:changeState('idle')
+            table.insert(self.objects, self.bomb)
+            self.circleOriginSet = true
         end
     end
 
@@ -566,7 +569,7 @@ function Level:generateExplosion(x, y)
         x = x,
         y = y,
 
-        width = 184,
+        width = 160,
         height = 184,
 
         health = 50
@@ -575,7 +578,15 @@ function Level:generateExplosion(x, y)
 
     bossExplosion.onCollide = function()
         if bossExplosion.state == 'explode' then
-            self.player:damage(2)
+            local explosionRange = 100
+    
+            -- Calculate the distance between the player and the explosion center
+            local distanceToPlayer = math.sqrt((self.player.x - bossExplosion.x)^2 + (self.player.y - bossExplosion.y)^2)
+    
+            -- Check if the player is within the explosion range
+            if distanceToPlayer < explosionRange then
+                self.player:damage(2)
+            end
         end
     end
     gSounds['boss_explosion']:play()

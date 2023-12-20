@@ -46,6 +46,7 @@ require 'src/states/entity/creature/CreatureMoveState'
 
 require 'src/states/entity/boss/BossIdleState'
 require 'src/states/entity/boss/BossMoveState'
+require 'src/states/entity/boss/BossChargeState'
 
 -- game states
 require 'src/states/game/PlayState'

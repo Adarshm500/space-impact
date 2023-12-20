@@ -60,6 +60,25 @@ function BossMoveState:processAI(params, dt)
     end
 
     self.movementTimer = self.movementTimer + dt
+
+    -- print("before speedX:  "..self.entity.dx)
+
+    if self.entity.chargeTimer > 5 then
+        self.entity:changeState('charge')
+    --     -- start bashing
+    --     print('charge')
+    --     print("chargeSpeed:  "..self.entity.chargeSpeed)
+    --     print("after SpeedX:  "..self.entity.dx)
+    --     self.entity.dx = -self.entity.chargeSpeed
+    --     self.entity.chargeTimer = 0
+    -- elseif self.entity.x  <  VIRTUAL_WIDTH - self.entity.width then
+    --     self.entity.dx = 0
+    end
+
+    -- if self.entity.x < -self.entity.width then
+    --     print('running')
+    --     self.entity.dx = self.entity.chargeSpeed
+    -- end
 end
 
 function BossMoveState:render()

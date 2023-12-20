@@ -5,17 +5,19 @@ function Boss:init(def)
     self.explosionTimer = 0
     self.chargeTimer = 0
     self.fireTimer = 0
+    self.chargeSpeed = 1000
 end
 
 function Boss:update(dt)
     self.fireTimer = self.fireTimer + dt
     self.explosionTimer = self.explosionTimer + dt
+    self.chargeTimer = self.chargeTimer + dt
     Entity.update(self, dt)
 end
 
 function Boss:collides(target)
-    local yOffset = 0
-    local xOffset = 0
+    local yOffset = 40
+    local xOffset = 40
  
     local selfY, selfHeight = self.y + yOffset, self.height - 2 * yOffset
 
