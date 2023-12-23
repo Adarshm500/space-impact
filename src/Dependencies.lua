@@ -28,6 +28,7 @@ require 'src/Creature'
 require 'src/CreatureFire'
 require 'src/Score'
 require 'src/Boss'
+require 'src/ProgressBar'
 
 -- world
 require 'src/world/Level'
@@ -55,12 +56,15 @@ require 'src/states/game/GameOverState'
 gSounds = {
     ['shoot'] = love.audio.newSource('sounds/shoot4.wav', 'static'),
     ['explosion'] = love.audio.newSource('sounds/explosion.wav', 'static'),
+    ['explosion2'] = love.audio.newSource('sounds/explosion2.wav', 'static'),
     ['boss_explosion'] = love.audio.newSource('sounds/explosion.wav', 'static'),
     ['bomb'] = love.audio.newSource('sounds/bomb.wav', 'static'),
     ['dead'] = love.audio.newSource('sounds/dead.wav', 'static'),
     ['music'] = love.audio.newSource('sounds/music.mp3', 'static'),
     ['intro-music'] = love.audio.newSource('sounds/menu.wav', 'static'),
     ['battle'] = love.audio.newSource('sounds/battle-music.mp3', 'static'),
+    ['boss-death'] = love.audio.newSource('sounds/boss_death.wav', 'static'),
+    ['health'] = love.audio.newSource('sounds/health.ogg', 'static'),
 }
 
 gTextures = {
@@ -84,6 +88,8 @@ gTextures = {
     ['boss'] = love.graphics.newImage('graphics/Boss.png'),
     ['boss-explosion'] = love.graphics.newImage('graphics/boss_explosion.png'),
     ['bomb'] = love.graphics.newImage('graphics/bomb.png'),
+    ['boss-destroy'] = love.graphics.newImage('graphics/boss_destroy.png'),
+
 }
 
 gFrames = {
@@ -103,6 +109,8 @@ gFrames = {
     ['boss'] = GenerateQuads(gTextures['boss'], 256, 256),
     ['boss-explosion'] = GenerateQuads(gTextures['boss-explosion'], 184, 184),
     ['bomb'] = GenerateQuads(gTextures['bomb'], 32, 32),
+    ['boss-destroy'] = GenerateQuads(gTextures['boss-destroy'], 256, 256),
+
 }
 gFonts = {
     ['small'] = love.graphics.newFont('fonts/font.ttf', 8),

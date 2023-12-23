@@ -142,6 +142,11 @@ ENTITY_DEFS = {
                 frames = {1},
                 texture = 'boss'
             },
+            ['destroy'] = {
+                frames = {6, 7, 8, 9},
+                interval = 0.15,
+                texture = 'boss-destroy'
+            }
         }
     }
 }

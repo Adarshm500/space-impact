@@ -63,7 +63,7 @@ function BossMoveState:processAI(params, dt)
 
     -- print("before speedX:  "..self.entity.dx)
 
-    if self.entity.chargeTimer > 5 then
+    if self.entity.chargeTimer > math.random(12, 16) then
         self.entity:changeState('charge')
     --     -- start bashing
     --     print('charge')

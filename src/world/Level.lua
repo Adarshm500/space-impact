@@ -142,7 +142,7 @@ function Level:update(dt)
     self.fireTimer = self.fireTimer + dt
     self.timer = self.timer + dt
 
-    if self.score > 100 and not self.boss then
+    if self.score > 200 and not self.boss then
         gSounds['music']:stop()
         gSounds['battle']:setLooping(true)
         gSounds['battle']:play()
@@ -157,7 +157,7 @@ function Level:update(dt)
             width = 256,
             height = 256,
     
-            health = 10000,
+            health = 200,
         }
 
         table.insert(self.entities, self.boss)
@@ -168,6 +168,16 @@ function Level:update(dt)
             ['charge'] = function() return BossChargeState(self.boss) end
         }
         self.boss:changeState('move')
+
+        self.bossHealthBar = ProgressBar {
+            x = self.boss.x + 24,
+            y = self.boss.y - 16,
+            width = 152,
+            height = 6,
+            color = {r = 255/255, g = 0/255, b = 102/255},
+            value = self.boss.health,
+            max = 200
+        }
     end
 
     -- if boss touches the player then player dies
@@ -209,10 +219,22 @@ function Level:update(dt)
         self.player.remove = true
         self.player:changeAnimation('destroy')
         self.player.deathTime = self.timer
-        -- explosion sound
     end
     
     if self.timer - self.player.deathTime > 3 and self.player.remove then
+        gStateMachine:change('game-over')
+    end
+
+    -- if boss is dead then victory
+    if self.boss and self.boss.health < 1 and not self.boss.remove then
+        gSounds['boss-death']:play()
+        print('run')
+        self.boss.remove = true
+        self.boss:changeAnimation('destroy')
+        self.boss.deathTime = self.timer
+    end
+
+    if self.boss and self.timer - self.boss.deathTime > 3 and self.boss.remove then
         gStateMachine:change('game-over')
     end
 
@@ -268,6 +290,10 @@ function Level:update(dt)
     for k, entity in pairs(self.entities) do
         if entity.health <= 0 then
             entity.dead = true
+            gSounds['explosion2']:play()
+            if entity == self.boss then
+                self.bossHealthBar.remove = true
+            end
             self.score = self.score + scorePoints
             -- generate a score object to show score increase
             table.insert(self.scoreObjects, Score(scorePoints, entity.x - 48, entity.y + entity.height / 2))
@@ -414,6 +440,9 @@ function Level:update(dt)
 
     self.scoreObjects = newScores
 
+    if self.bossHealthBar and not self.bossHealthBar.remove then
+        self.bossHealthBar:update(self.boss, dt)
+    end
     self.background:update(dt)
 end
 
@@ -433,6 +462,12 @@ function Level:render()
             entity:render()
         end
     end
+
+    -- render the bosshealthbar if available
+    if self.bossHealthBar and not self.bossHealthBar.remove then
+        self.bossHealthBar:render()
+    end
+
     -- render creatureFire
     for k, fire in pairs(self.creatureFires) do
         fire:render()
@@ -587,6 +622,10 @@ function Level:generateExplosion(x, y)
             if distanceToPlayer < explosionRange then
                 self.player:damage(2)
             end
+
+            if self.boss:collides(bossExplosion) then
+                self.boss:damage(10)
+            end
         end
     end
     gSounds['boss_explosion']:play()
@@ -597,7 +636,7 @@ end
 
 function Level:generateHeart(entity) 
     -- chance to generate a heart
-    if math.random(3) == 1 and entity.prevHealth > 0 then
+    if math.random(4) == 1 and entity.prevHealth > 0 then
         local heart = GameObject{
             animations = GAME_OBJECT_DEFS['heart'].states,
             moveSpeed = GAME_OBJECT_DEFS['heart'].moveSpeed,
@@ -615,6 +654,7 @@ function Level:generateHeart(entity)
         heart.onCollide = function(obj)
             -- ensure that the health should increase and to the extent that it isn't beyond the 3 hearts
             if self.player:collides(heart) then
+                gSounds['health']:play()
                 if self.player.health < 5 then
                     self.player:damage(-2)
                 elseif self.player.health == 5 then
