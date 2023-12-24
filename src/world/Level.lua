@@ -227,7 +227,6 @@ function Level:update(dt)
 
     -- if boss is dead then victory
     if self.boss and self.boss.health < 1 and not self.boss.remove then
-        gSounds['boss-death']:play()
         print('run')
         self.boss.remove = true
         self.boss:changeAnimation('destroy')
@@ -251,6 +250,7 @@ function Level:update(dt)
             if fire:collides(entity) then
                 entity:damage(2)
                 fire.remove = true
+                gSounds['boss-death']:play()
             end
         end
 
