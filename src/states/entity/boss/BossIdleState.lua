@@ -9,13 +9,15 @@ function BossIdleState:update(dt)
 end
 
 function BossIdleState:processAI(params, dt)
-    if self.waitDuration == 0 then
-        self.waitDuration = math.random(5)
-    else
-        self.waitTimer = self.waitTimer + dt
-
-        if self.waitTimer > self.waitDuration then
-            self.entity:changeState('move')
+    if not self.remove then
+        if self.waitDuration == 0 then
+            self.waitDuration = math.random(5)
+        else
+            self.waitTimer = self.waitTimer + dt
+    
+            if self.waitTimer > self.waitDuration then
+                self.entity:changeState('move')
+            end
         end
     end
 end
