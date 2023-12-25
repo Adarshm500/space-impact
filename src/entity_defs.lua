@@ -143,7 +143,7 @@ ENTITY_DEFS = {
                 texture = 'boss'
             },
             ['destroy'] = {
-                frames = {6, 7, 8, 9},
+                frames = {1, 2, 3, 4},
                 interval = 0.15,
                 texture = 'boss-destroy'
             }

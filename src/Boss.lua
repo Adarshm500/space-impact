@@ -8,6 +8,8 @@ function Boss:init(def)
     self.chargeSpeed = 1000
     self.deathTime = 0
     self.remove = false
+    self.death = false
+    self.charging = false
 end
 
 function Boss:update(dt)

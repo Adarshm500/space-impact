@@ -48,13 +48,16 @@ require 'src/states/entity/creature/CreatureMoveState'
 require 'src/states/entity/boss/BossIdleState'
 require 'src/states/entity/boss/BossMoveState'
 require 'src/states/entity/boss/BossChargeState'
+require 'src/states/entity/boss/BossDestroyState'
+
 
 -- game states
 require 'src/states/game/PlayState'
 require 'src/states/game/StartState'
 require 'src/states/game/GameOverState'
+require 'src/states/game/VictoryState'
 gSounds = {
-    ['shoot'] = love.audio.newSource('sounds/shoot4.wav', 'static'),
+    ['shoot'] = love.audio.newSource('sounds/shoot.mp3', 'static'),
     ['explosion'] = love.audio.newSource('sounds/explosion.wav', 'static'),
     ['explosion2'] = love.audio.newSource('sounds/explosion2.wav', 'static'),
     ['boss_explosion'] = love.audio.newSource('sounds/explosion.wav', 'static'),
@@ -65,10 +68,16 @@ gSounds = {
     ['battle'] = love.audio.newSource('sounds/battle-music.mp3', 'static'),
     ['boss-death'] = love.audio.newSource('sounds/boss_death.wav', 'static'),
     ['health'] = love.audio.newSource('sounds/health.ogg', 'static'),
+    ['bossScream'] = love.audio.newSource('sounds/scream.wav', 'static'),
+    ['creature-dead'] = love.audio.newSource('sounds/death.mp3', 'static'),
+    ['force-field'] = love.audio.newSource('sounds/force_field.ogg', 'static'),
+    ['victory'] = love.audio.newSource('sounds/victory.wav', 'static'),
+    ['victory-music'] = love.audio.newSource('sounds/victory_music.wav', 'static'),
 }
 
 gTextures = {
     ['start-background'] = love.graphics.newImage('graphics/start_background.png'),
+    ['victory-background'] = love.graphics.newImage('graphics/victory_background.jpg'),
     ['starfield-1'] = love.graphics.newImage('graphics/starfield_1.png'),
     ['starfield-2'] = love.graphics.newImage('graphics/starfield_2.png'),
     ['starfield-3'] = love.graphics.newImage('graphics/starfield_3.png'),

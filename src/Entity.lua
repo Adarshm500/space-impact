@@ -74,6 +74,7 @@ function Entity:changeAnimation(name)
 end
 
 function Entity:update(dt)
+
     if self.invulnerable then
         self.flashTimer = self.flashTimer + dt
         self.invulnerableTimer = self.invulnerableTimer + dt

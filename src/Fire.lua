@@ -16,7 +16,7 @@ function Fire:init(playerX, playerY, type)
     self.dx = 200
     self.remove = false
     gSounds['shoot']:stop()
-    gSounds['shoot']:setVolume(0.2)
+    -- gSounds['shoot']:setVolume()
     gSounds['shoot']:play()
 end
 

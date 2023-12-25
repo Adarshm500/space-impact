@@ -2,6 +2,8 @@ BossChargeState = Class{__includes = EntityMoveState}
 
 function BossChargeState:init(boss)
     self.entity = boss
+    self.entity.charging = true
+    gSounds['bossScream']:play()
     self.entity:changeAnimation('idle')
 
     self.entity.dx = self.entity.chargeSpeed
@@ -27,7 +29,7 @@ function BossChargeState:init(boss)
 end
 
 function BossChargeState:update(dt)
-    if self.warning and not self.remove then
+    if self.warning then
         self.pentagonAX = self.pentagonAX - self.drawSpeed * dt
         self.pentagonDX = self.pentagonDX - self.drawSpeed * dt
         self.pentagonEX = self.pentagonEX - self.drawSpeed * dt
@@ -46,7 +48,7 @@ function BossChargeState:update(dt)
 end
 
 function BossChargeState:processAI(params, dt)
-    if not self.warning and not self.remove then
+    if not self.warning then
         if self.bumped then
             self.entity.dx = -self.entity.chargeSpeed
         end

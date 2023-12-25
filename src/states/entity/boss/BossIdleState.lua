@@ -3,21 +3,20 @@ BossIdleState = Class{__includes = EntityIdleState}
 function BossIdleState:enter(params)
     self.waitDuration = 0
     self.waitTimer = 0
+    self.entity.charging = false
 end
 
 function BossIdleState:update(dt)
 end
 
 function BossIdleState:processAI(params, dt)
-    if not self.remove then
-        if self.waitDuration == 0 then
-            self.waitDuration = math.random(5)
-        else
-            self.waitTimer = self.waitTimer + dt
-    
-            if self.waitTimer > self.waitDuration then
-                self.entity:changeState('move')
-            end
+    if self.waitDuration == 0 then
+        self.waitDuration = math.random(5)
+    else
+        self.waitTimer = self.waitTimer + dt
+
+        if self.waitTimer > self.waitDuration then
+            self.entity:changeState('move')
         end
     end
 end

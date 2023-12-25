@@ -24,10 +24,10 @@ function StartState:render()
 
     love.graphics.setFont(gFonts['title'])
     love.graphics.setColor(34/255, 34/255, 34/255, 1)
-    love.graphics.printf('Space 50', 2, VIRTUAL_HEIGHT / 2 - 30, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Space-Impact 50', 2, VIRTUAL_HEIGHT / 2 - 30, VIRTUAL_WIDTH, 'center')
 
     love.graphics.setColor(175/255, 53/255, 42/255, 1)
-    love.graphics.printf('Space 50', 0, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Space-Impact 50', 0, VIRTUAL_HEIGHT / 2 - 32, VIRTUAL_WIDTH, 'center')
 
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setFont(gFonts['small'])

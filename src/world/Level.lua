@@ -13,6 +13,7 @@ function Level:init(player)
     self:generateObjects()
     self.creatureFires = {}
     self.creatureFireTimer = 0
+    self.creatureKilled = 0
 
     self.player = player
     self.fires = {}
@@ -52,6 +53,11 @@ function Level:init(player)
     -- division of distance between self.bombX and player
     self.distanceDivisionX = 10
     self.distanceDivisionY = 10
+    self.bossSpawned = false
+    self.checkPoint = {}
+    self.checkPointDone = false
+    self.respawnCount = 0
+    self.justRespawned = false
 end
 
 function Level:generateEntities()
@@ -142,9 +148,11 @@ function Level:update(dt)
     self.fireTimer = self.fireTimer + dt
     self.timer = self.timer + dt
 
-    if self.score > 200 and not self.boss then
+    if self.creatureKilled > 80 and not self.bossSpawned then
+        gSounds['bossScream']:play()
         gSounds['music']:stop()
         gSounds['battle']:setLooping(true)
+        gSounds['battle']:setVolume(0.2)
         gSounds['battle']:play()
         self.boss = Boss {
             animations = ENTITY_DEFS['boss'].animations,
@@ -157,7 +165,7 @@ function Level:update(dt)
             width = 256,
             height = 256,
     
-            health = 200,
+            health = 1000,
         }
 
         table.insert(self.entities, self.boss)
@@ -165,7 +173,8 @@ function Level:update(dt)
         self.boss.stateMachine = StateMachine{
             ['move'] = function() return BossMoveState(self.boss) end,
             ['idle'] = function() return BossIdleState(self.boss) end,
-            ['charge'] = function() return BossChargeState(self.boss) end
+            ['charge'] = function() return BossChargeState(self.boss) end,
+            ['destroy'] = function() return BossDestroyState(self.boss) end
         }
         self.boss:changeState('move')
 
@@ -176,13 +185,10 @@ function Level:update(dt)
             height = 6,
             color = {r = 255/255, g = 0/255, b = 102/255},
             value = self.boss.health,
-            max = 200
+            max = self.boss.health
         }
-    end
 
-    -- if boss touches the player then player dies
-    if self.boss and self.boss:collides(self.player) then
-        self.player:damage(6)
+        self.bossSpawned = true
     end
         
     -- randomly init asteroids at random location and random speed
@@ -196,7 +202,7 @@ function Level:update(dt)
     -- change the scorepoints according to the level
     local scorePoints = 100 * difficultyLevel
 
-    if not self.boss then
+    if not self.bossSpawned then
         for i = 1, difficultyLevel do
             local enemySpawnProbability = (i + 9) / 2200
             if math.random(1 / enemySpawnProbability) == 1 then
@@ -209,6 +215,13 @@ function Level:update(dt)
         end
     end    
 
+    ---- increment the player speed if the boss is charging
+    if self.boss and self.boss.charging then
+        self.player.moveSpeed = 500
+    else
+        self.player.moveSpeed = ENTITY_DEFS['player'].moveSpeed
+    end
+
     ---- update the player -----
     self.player:update(dt)
 
@@ -219,6 +232,34 @@ function Level:update(dt)
         self.player.remove = true
         self.player:changeAnimation('destroy')
         self.player.deathTime = self.timer
+
+        -- restart the game from checkPoint if dies after checkPoint
+        if #self.checkPoint > 0 and self.respawnCount < 6 then
+            self.score = self.checkPoint[#self.checkPoint].score
+            self.creatureKilled = self.checkPoint[#self.checkPoint].creatureKilled
+            self.timer = self.checkPoint[#self.checkPoint].timer
+            self.player.health = 6
+            self.player.x = 0
+            self.player.y = VIRTUAL_HEIGHT / 2 - 48
+            self.player.remove = false
+            self.player:changeAnimation('move-left')
+            self.player:changeState('idle')
+            self.player.deathTime = 0
+            self.respawnCount = self.respawnCount + 1
+
+            if self.bossSpawned then
+                for k, entity in pairs(self.entities) do
+                    if entity == self.boss then
+                        table.remove(self.entities, k)
+                    end
+                end
+                self.boss = nil
+                self.bossHealthBar.remove = true
+                self.bossSpawned = false
+            end
+            self.justRespawned = true
+            -- self.player.goInvulnerable(2)
+        end
     end
     
     if self.timer - self.player.deathTime > 3 and self.player.remove then
@@ -226,15 +267,19 @@ function Level:update(dt)
     end
 
     -- if boss is dead then victory
-    if self.boss and self.boss.health < 1 and not self.boss.remove then
-        print('run')
+    if self.bossSpawned and self.boss.health < 1 and not self.boss.remove then
+        gSounds['boss-death']:play()
         self.boss.remove = true
-        self.boss:changeAnimation('destroy')
-        self.boss.deathTime = self.timer
+        -- increment the score by 2000
+        self.score = self.score + 2000
+        -- generate a score object to show score increase
+        table.insert(self.scoreObjects, Score(scorePoints, self.boss.x - 48, self.boss.y + self.boss.height / 2))
+        self.boss:changeState('destroy')
     end
 
-    if self.boss and self.timer - self.boss.deathTime > 3 and self.boss.remove then
-        gStateMachine:change('game-over')
+    if self.bossSpawned and self.boss.death then
+        gSounds['victory']:play()
+        gStateMachine:change('victory')
     end
 
     ----- update the spaceship fires ------
@@ -250,7 +295,6 @@ function Level:update(dt)
             if fire:collides(entity) then
                 entity:damage(2)
                 fire.remove = true
-                gSounds['boss-death']:play()
             end
         end
 
@@ -271,7 +315,9 @@ function Level:update(dt)
 
     -- after every 0.2 seconds init a fire
     if self.fireTimer > 0.17 then
-        for i = 1, math.min(difficultyLevel + 1, 4) do
+        -- 2 fire starts and then goes to 4 fires
+            -- the difficulty level is 1 at start so when difficulty is 3 only then the fire count increases, this ensures that the player does not have much power over enemies
+        for i = 1, math.max(2, math.min(difficultyLevel, 4)) do
             local fire
             if i <= 2 then
                 fire = Fire(self.player.x, self.player.y + (i - 1) * 4, 'primary')
@@ -283,36 +329,67 @@ function Level:update(dt)
         end
     end    
 
+    -- update the boss separate from other entities
+    if self.bossSpawned and not self.boss.dead then
+        self.boss:update(dt)
+        self.boss:processAI({level = self}, dt)
+        if self.boss.fireTimer > 0.25 and math.abs(self.player.y - self.boss.y) < 64 then
+            local fire = CreatureFire(self.boss.x, self.boss.y + self.boss.height / 2)
+            table.insert(self.creatureFires, fire)
+            self.boss.fireTimer = 0
+        end
+    end
+
+    -- if boss touches the player then player dies
+    if self.bossSpawned and self.boss:collides(self.player) then
+        self.player:damage(6)
+    end
     ----- update the entities ---------
     -- table to keep updating the object and remove the ones needed to remove
+    
     local newEntities = {}
-
     for k, entity in pairs(self.entities) do
         if entity.health <= 0 then
-            entity.dead = true
-            gSounds['explosion2']:play()
+            -- remove the health bar from boss is boss is dead
             if entity == self.boss then
                 self.bossHealthBar.remove = true
+            else
+                entity.dead = true
+                gSounds['creature-dead']:play()
+                self.score = self.score + scorePoints
+                -- generate a score object to show score increase
+                table.insert(self.scoreObjects, Score(scorePoints, entity.x - 48, entity.y + entity.height / 2))
+                self.creatureKilled = self.creatureKilled + 1
+                -- store the checkpoint values so that it could be treated as checkPoint
+                if self.creatureKilled > 70 and not self.checkPointDone then
+                    table.insert(self.checkPoint, 
+                    {
+                        score = self.score, 
+                        creatureKilled = self.creatureKilled,
+                        timer = self.timer
+                    })
+
+                    self.checkPointDone = true
+                end
             end
-            self.score = self.score + scorePoints
-            -- generate a score object to show score increase
-            table.insert(self.scoreObjects, Score(scorePoints, entity.x - 48, entity.y + entity.height / 2))
             -- generate a heart randomly after entity death
             self:generateHeart(entity)
         elseif not entity.dead then
-            entity:processAI({level = self}, dt)
-            entity:update(dt)
-
-            if entity.fireTimer > 0.25 and math.abs(self.player.y - entity.y) < 64 then
-                local fire = CreatureFire(entity.x, entity.y + entity.height / 2)
-                table.insert(self.creatureFires, fire)
-                entity.fireTimer = 0
+            if entity ~= self.boss then
+                entity:processAI({level = self}, dt)
+                entity:update(dt)
+                if entity.fireTimer > 0.25 and math.abs(self.player.y - entity.y) < 64 then
+                    local fire = CreatureFire(entity.x, entity.y + entity.height / 2)
+                    table.insert(self.creatureFires, fire)
+                    entity.fireTimer = 0
+                end
             end
+
         end
         entity.prevHealth = entity.health
 
         if self.player:collides(entity) and not entity == self.boss then
-            entity.dead = true
+            entity:damage(8)
             if not self.player.invulnerable then
                 self.player:damage(2)
                 self.player:goInvulnerable(2)
@@ -329,7 +406,7 @@ function Level:update(dt)
     self.entities = newEntities
 
     ----- if it is boss then do the explosion and charge by timer
-    if self.boss and self.boss.explosionTimer > 10 then
+    if self.bossSpawned and self.boss.explosionTimer > 10 and not self.boss.remove then
         -- first make the area reddish
         self.explosionAim = true
         self.warningBeginTimer = self.timer
@@ -483,6 +560,9 @@ function Level:render()
     end
 
     if self.explosionAim and not self.explosionWarning then
+        -- player location
+        self.playerX = self.player.x + self.player.width / 2
+        self.playerY = self.player.y + self.player.height / 2
         self:explosionAiming()
     end
     
@@ -494,8 +574,7 @@ end
 function Level:explosionAiming()
     gSounds['bomb']:play()
     love.graphics.setColor(214/255, 5/255, 14/255, 1)
-    -- loop over the entities to find boss
-    if self.boss then
+    if self.bossSpawned then
         -- set the self.bombX and self.bombY only once
         if not self.circleOriginSet then
             local bombX = self.boss.x
@@ -519,10 +598,6 @@ function Level:explosionAiming()
             self.circleOriginSet = true
         end
     end
-
-    -- player location
-    local playerX = self.player.x + self.player.width / 2
-    local playerY = self.player.y + self.player.height / 2
     
     -- use the distance formula to get the distance from circle to player
     local distanceCircleToPlayerX
@@ -531,10 +606,8 @@ function Level:explosionAiming()
     local speedY
 
     
-    distanceCircleToPlayerX = self.bomb.x - playerX
-    distanceCircleToPlayerY = self.bomb.y - playerY
-    print('distanceCircleToPlayerX:  '..distanceCircleToPlayerX)
-    print('distanceCircleToPlayerY:  '..distanceCircleToPlayerY)
+    distanceCircleToPlayerX = self.bomb.x - self.playerX
+    distanceCircleToPlayerY = self.bomb.y - self.playerY
     -- if not self.circleSpeedSet then
     speedX = distanceCircleToPlayerX / self.distanceDivisionX
     speedY = distanceCircleToPlayerY / self.distanceDivisionY
@@ -546,20 +619,14 @@ function Level:explosionAiming()
         
     end
     if math.abs(speedY) < 1 then
-        -- self.distanceDivisionY = self.distanceDivisionY / 2
         self.distanceDivisionY = 10
     end
-    -- self.circleSpeedSet = true
-    print('speedX:  '..speedX)
-    print('speedY:  '..speedY)
-    -- end
     
     self.bomb.x = math.floor(self.bomb.x - speedX)
     self.bomb.y = math.floor(self.bomb.y - speedY)
     -- love.graphics.circle('fill', self.bombX, self.bombY, 10)
     
     local distanceCircleToPlayer = math.sqrt(distanceCircleToPlayerX ^ 2 + distanceCircleToPlayerY ^ 2)
-    print('distanceCircleToPlayer:  '..distanceCircleToPlayer)
     
     if distanceCircleToPlayer < 10 then
         -- reset all the values
@@ -568,14 +635,15 @@ function Level:explosionAiming()
         self.circleOriginSet = false
         self.explosionAim = false
         self.warningBeginTimer = self.timer
-        self.explosionX = playerX
-        self.explosionY = playerY
+        self.explosionX = self.playerX
+        self.explosionY = self.playerY
         self.explosionWarning = true
         self.bomb.remove = true
     end
 end
 
 function  Level:explosionWarn()
+    gSounds['force-field']:play()
     -- implement dot from the boss to space-ship
     if self.radius < 10 then
         love.graphics.circle('fill', self.explosionX, self.explosionY, self.radius)
@@ -623,7 +691,7 @@ function Level:generateExplosion(x, y)
                 self.player:damage(2)
             end
 
-            if self.boss:collides(bossExplosion) then
+            if self.boss and self.boss:collides(bossExplosion) then
                 self.boss:damage(10)
             end
         end
@@ -653,7 +721,7 @@ function Level:generateHeart(entity)
         -- onCollide the heart should disappear and the health should increase
         heart.onCollide = function(obj)
             -- ensure that the health should increase and to the extent that it isn't beyond the 3 hearts
-            if self.player:collides(heart) then
+            if self.player:collides(heart) and not self.player.remove then
                 gSounds['health']:play()
                 if self.player.health < 5 then
                     self.player:damage(-2)
