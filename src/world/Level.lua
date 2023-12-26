@@ -129,9 +129,6 @@ function Level:generateCreatures()
         height = 48,
 
         health = 8,
-
-        -- rendering and collision offset for spaced sprites
-        -- offsetY = -48
     }
 
     table.insert(self.entities, creature)
@@ -624,7 +621,6 @@ function Level:explosionAiming()
     
     self.bomb.x = math.floor(self.bomb.x - speedX)
     self.bomb.y = math.floor(self.bomb.y - speedY)
-    -- love.graphics.circle('fill', self.bombX, self.bombY, 10)
     
     local distanceCircleToPlayer = math.sqrt(distanceCircleToPlayerX ^ 2 + distanceCircleToPlayerY ^ 2)
     
