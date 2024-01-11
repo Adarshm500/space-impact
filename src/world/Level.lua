@@ -252,6 +252,13 @@ function Level:update(dt)
                 end
                 self.boss = nil
                 self.bossHealthBar.remove = true
+
+                -- change the music from battle music to normal music
+                gSounds['battle']:stop()
+                gSounds['music']:setLooping(true)
+                gSounds['music']:setVolume(0.5)
+                gSounds['music']:play()
+
                 self.bossSpawned = false
             end
             self.justRespawned = true
